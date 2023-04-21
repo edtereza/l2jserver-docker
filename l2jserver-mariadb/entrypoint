@@ -133,9 +133,9 @@ if [[ $CONTAINER_PARAMS_CHECK -eq 0 ]];
         exit 1
 	fi
 #
-container_config
-CONTAINER_CONFIG_CHECK=$?
-if [[ $CONTAINER_CONFIG_CHECK -eq 0 ]];
+container_setup
+CONTAINER_SETUP_CHECK=$?
+if [[ $CONTAINER_SETUP_CHECK -eq 0 ]];
 	then
 		exit 1
 	fi
