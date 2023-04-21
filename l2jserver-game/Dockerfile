@@ -34,8 +34,6 @@ RUN chmod +x "$PATH_CLIENT/l2jcli.sh"
 RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker"
 RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint"
 RUN ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint
-RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck"
-RUN ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
 
 RUN apk del maven git unzip
 RUN rm "$PATH_SOURCE" -R -f

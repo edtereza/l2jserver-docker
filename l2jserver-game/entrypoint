@@ -31,7 +31,7 @@ container_trap() {
     #
     # Killing all java process
     #
-    kill $(ps aux | grep java | grep '.jar' | awk '{print $1}')
+    kill $(ps aux | grep java | grep '.jar' | awk '{print $2}')
 }
 trap container_trap SIGINT SIGTERM
 # ---------------------------------------------------------------------------
