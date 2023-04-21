@@ -36,8 +36,7 @@ RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker"
 RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint"
 RUN ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint
 
-RUN apk del maven git unzip openjdk17-jdk
-RUN apk update && apk --no-cache add openjdk17-jre
+RUN apk del maven git unzip
 RUN rm "$PATH_SOURCE" -R -f
 RUN rm -R -f /var/cache/apk/*
 
