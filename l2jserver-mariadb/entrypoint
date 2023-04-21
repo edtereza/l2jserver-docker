@@ -1,0 +1,149 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# Script Path
+# ---------------------------------------------------------------------------
+SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+# ---------------------------------------------------------------------------
+# Function COPYRIGHT
+# ---------------------------------------------------------------------------
+container_copyright() {
+    echo ''
+}
+# ---------------------------------------------------------------------------
+# Function TRAP
+# ---------------------------------------------------------------------------
+container_trap() {
+    kill $(ps aux | grep mysqld | grep console | awk '{print $2}')
+}
+trap container_trap SIGINT SIGTERM
+# ---------------------------------------------------------------------------
+# Function LOG
+# ---------------------------------------------------------------------------
+container_log() {
+	LOG_TEXT=$1
+    LOG_INFO=$2
+	LOG_MSEC=$(date "+%N")
+	LOG_DATE=$(date "+%Y-%m-%d")
+    LOG_TIME=$(date "+%H:%M:%S")
+	# STDOUT
+	echo "[${LOG_DATE} ${LOG_TIME}.${LOG_MSEC:0:5}] [${LOG_INFO}] ${LOG_TEXT}"	
+}
+# ---------------------------------------------------------------------------
+# Function PARAMS
+# ---------------------------------------------------------------------------
+container_params() {
+    #
+    container_log "Database Params" "INFO"
+    #
+    MARIADB_USERNAME=${MARIADB_USERNAME:-"lj2server"}
+    MARIADB_PASSWORD=${MARIADB_PASSWORD:-"lj2server"}
+    #
+    if [[ "$MARIADB_USERNAME" == '' ]];
+        then
+            container_log "- MARIADB_USERNAME cannot be empty" "ERROR"
+            container_log "- - A valid username has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_PASSWORD" == '' ]];
+        then
+            container_log "- MARIADB_PASSWORD cannot be empty" "ERROR"
+            container_log "- - A valid password has required." "ERROR"
+            return 0
+		fi
+    #
+    container_log " - Database Settings" "INFO"
+	container_log " - - USERNAME....: ${MARIADB_USERNAME}" "INFO"
+	container_log " - - PASSWORD....: ${MARIADB_PASSWORD}" "INFO"
+    export MARIADB_USERNAME=$MARIADB_USERNAME
+    export MARIADB_PASSWORD=$MARIADB_PASSWORD
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Function SETUP
+# ---------------------------------------------------------------------------
+container_setup() {
+    #
+    container_log "Setup Enviroment" "INFO"
+    container_log "- Checking for /run/mysqld" "INFO"
+    if [ -d "/run/mysqld" ]; then
+        container_log "- - /run/mysqld already exists" "INFO"
+    else
+        container_log "- - /run/mysqld has created" "INFO"
+        mkdir -p /run/mysqld;
+    fi
+    chown -R mysql:mysql /run/mysqld; 
+    chown -R mysql:mysql /var/lib/mysql    
+    #
+    container_log "- Checking database structure" "INFO"
+    if [ -d /var/lib/mysql/mysql ]; then
+        container_log "- - Database structure already exists" "INFO"
+    else
+        container_log "- - Database structure not exists" "WARN"
+        container_log "- Initializing database structure" "INFO"
+        mysql_install_db --user=mysql --ldata=/var/lib/mysql > /dev/null
+        container_log "- - Database structure initialized" "INFO"
+        #
+        MARIADB_PASSWORD_ROOT=`pwgen 16 1`
+        if [ -f "/var/lib/mysql/passwd" ]; then
+            MARIADB_PASSWORD_ROOT=$(cat /var/lib/mysql/passwd)
+        fi
+        export MARIADB_PASSWORD_ROOT=$MARIADB_PASSWORD_ROOT
+        container_log "- Initializing root password" "INFO"
+        container_log "- - root password.: " "INFO"MARIADB_PASSWORD_ROOT
+        tfile=`mktemp`
+        if [ ! -f "$tfile" ]; then
+            return 0
+        fi
+        cat << EOF > $tfile
+USE mysql;
+FLUSH PRIVILEGES ;
+GRANT ALL ON *.* TO 'root'@'%' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
+GRANT ALL ON *.* TO 'root'@'localhost' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
+SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}') ;
+DROP DATABASE IF EXISTS test ;
+FLUSH PRIVILEGES ;
+EOF
+        /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
+        cat << EOF > $tfile
+USE mysql;
+FLUSH PRIVILEGES ;
+GRANT ALL ON *.* TO '${MARIADB_USERNAME}'@'%' identified by '${MARIADB_PASSWORD}' WITH GRANT OPTION ;
+GRANT ALL ON *.* TO '${MARIADB_USERNAME}'@'localhost' identified by '${MARIADB_PASSWORD}' WITH GRANT OPTION ;
+SET PASSWORD FOR '${MARIADB_USERNAME}'@'localhost'=PASSWORD('${MARIADB_PASSWORD}') ;
+DROP DATABASE IF EXISTS test ;
+FLUSH PRIVILEGES ;
+EOF
+        /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
+        rm -f $tfile
+    fi
+	chown -R mysql:mysql /var/lib/mysql
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Main Events
+# ---------------------------------------------------------------------------
+container_copyright
+#
+container_params
+CONTAINER_PARAMS_CHECK=$?
+if [[ $CONTAINER_PARAMS_CHECK -eq 0 ]];
+	then
+        exit 1
+	fi
+#
+container_config
+CONTAINER_CONFIG_CHECK=$?
+if [[ $CONTAINER_CONFIG_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_log "##########################################################################################" "INFO"
+#
+exec /usr/bin/mysqld --user=mysql --console --skip-name-resolve --skip-networking=0 $@
+#
+container_log "##########################################################################################" "INFO"
+#
+exit 0

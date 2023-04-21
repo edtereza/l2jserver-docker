@@ -1,0 +1,467 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# Script Path
+# ---------------------------------------------------------------------------
+# SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+SCRIPT_PATH="/opt/l2jserver"
+# ---------------------------------------------------------------------------
+# Config Paths
+# ---------------------------------------------------------------------------
+PATH_SERVER_CONFIG="${SCRIPT_PATH}/config"
+PATH_CLIENT_CONFIG="${SCRIPT_PATH}/cli/config"
+# ---------------------------------------------------------------------------
+# Config Files
+# ---------------------------------------------------------------------------
+FILE_SERVER_CONFIG_EMAIL="${PATH_SERVER_CONFIG}/email.properties"
+FILE_SERVER_CONFIG_SERVER="${PATH_SERVER_CONFIG}/server.properties"
+FILE_SERVER_CONFIG_TELNET="${PATH_SERVER_CONFIG}/telnet.properties"
+FILE_SERVER_CONFIG_DATABASE="${PATH_SERVER_CONFIG}/database.properties"
+FILE_SERVER_CONFIG_BANNEDIP="${PATH_SERVER_CONFIG}/banned_ip.cfg"
+FILE_CLIENT_CONFIG_DATABASE="${PATH_CLIENT_CONFIG}/login-server.properties"
+# ---------------------------------------------------------------------------
+# Function COPYRIGHT
+# ---------------------------------------------------------------------------
+container_copyright() {
+    echo ''
+}
+# ---------------------------------------------------------------------------
+# Function TRAP
+# ---------------------------------------------------------------------------
+container_trap() {
+    #
+    # Killing all java process
+    #
+    kill $(ps aux | grep java | grep '.jar' | awk '{print $2}')
+}
+trap container_trap SIGINT SIGTERM
+# ---------------------------------------------------------------------------
+# Function LOG
+# ---------------------------------------------------------------------------
+container_log() {
+	LOG_TEXT=$1
+    LOG_INFO=$2
+	LOG_MSEC=$(date "+%N")
+	LOG_DATE=$(date "+%Y-%m-%d")
+    LOG_TIME=$(date "+%H:%M:%S")
+	# STDOUT
+	echo "[${LOG_DATE} ${LOG_TIME}.${LOG_MSEC:0:5}] [${LOG_INFO}] ${LOG_TEXT}"	
+}
+# ---------------------------------------------------------------------------
+# Function PARAMS
+# ---------------------------------------------------------------------------
+container_params() {
+    MEMORY_MAX=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}');
+    let MEMORY_MAX=$MEMORY_MAX/1024;
+    let MEMORY_MAX=$MEMORY_MAX-1024;
+    #
+    container_log "JAVA Params" "INFO"
+    #
+    JAVA_XMS=${JAVA_XMS:-"128"}
+    JAVA_XMS=$(echo $JAVA_XMS | sed 's/[^0-9]*//g')
+    JAVA_XMX=${JAVA_XMX:-"512"}
+    JAVA_XMX=$(echo $JAVA_XMX | sed 's/[^0-9]*//g')
+    if [[ ! $JAVA_XMS =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- JAVA_XMS has invalid value" "ERROR"
+            container_log "- - Inform a valid value from 128mb to ${MEMORY_MAX}mb." "ERROR"
+            return 0
+        fi
+    if [[ $JAVA_XMS -lt 128 ]];
+        then  
+            container_log "- JAVA_XMS has lower than minimal memory necessary" "ERROR"
+            container_log "- - Inform a valid value from 128mb to ${MEMORY_MAX}mb." "ERROR"
+            return 0
+        fi
+    if [[ ! $JAVA_XMX =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- JAVA_XMX has invalid value" "ERROR"
+            container_log "- - Inform a valid value from 128mb to ${MEMORY_MAX}mb." "ERROR"
+            return 0
+        fi
+    if [[ $JAVA_XMX -gt $MEMORY_MAX ]];
+        then  
+            container_log "- JAVA_XMX has greater than maximum memory avaliable" "ERROR"
+            container_log "- - Inform a valid value from 128mb to ${MEMORY_MAX}mb." "ERROR"
+            return 0
+        fi
+    if [[ $JAVA_XMS -gt $JAVA_XMX ]];
+        then
+            container_log "- JAVA_XMS has greater than JAVA_XMX" "ERROR"
+            container_log "- - Inform a valid value from 128mb to ${JAVA_XMX}mb." "ERROR"
+            return 0
+		fi
+	#
+    container_log "- Memory Usage" "INFO"
+	container_log "- - JAVA_XMS.: ${JAVA_XMS}mb" "INFO"
+	container_log "- - JAVA_XMX.: ${JAVA_XMX}mb" "INFO"
+	export JAVA_XMS=$JAVA_XMS
+	export JAVA_XMX=$JAVA_XMX
+    #
+    container_log "Database Params" "INFO"
+    #
+    MARIADB_HOST=${MARIADB_HOST:-"127.0.0.1"}
+    MARIADB_PORT=${MARIADB_PORT:-"3306"}
+    let MARIADB_PORT=$(echo $MARIADB_PORT | sed 's/[^0-9]*//g')
+    MARIADB_DATABASE=${MARIADB_DATABASE:-"l2jlogin"}
+    MARIADB_USERNAME=${MARIADB_USERNAME:-"l2jlogin"}
+    MARIADB_PASSWORD=${MARIADB_PASSWORD:-"l2jlogin"}
+    MARIADB_IDLE_TIME=${MARIADB_IDLE_TIME:-"30"}
+    let MARIADB_IDLE_TIME=$(echo $MARIADB_IDLE_TIME | sed 's/[^0-9]*//g')
+    let MARIADB_IDLE_TIME=0
+    MARIADB_CONNECTIONS=${MARIADB_CONNECTIONS:-"16"}
+    let MARIADB_CONNECTIONS=$(echo $MARIADB_CONNECTIONS | sed 's/[^0-9]*//g')
+    #
+    if [[ "$MARIADB_HOST" == '' ]];
+        then
+            container_log "- MARIADB_HOST cannot be empty" "ERROR"
+            container_log "- - A valid hostname or ip address has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_PORT =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_PORT has invalid" "ERROR"
+            container_log "- - A valid connection port has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_DATABASE" == '' ]];
+        then
+            container_log "- MARIADB_DATABASE cannot be empty" "ERROR"
+            container_log "- - A valid database name has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_USERNAME" == '' ]];
+        then
+            container_log "- MARIADB_USERNAME cannot be empty" "ERROR"
+            container_log "- - A valid username has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_PASSWORD" == '' ]];
+        then
+            container_log "- MARIADB_PASSWORD cannot be empty" "ERROR"
+            container_log "- - A valid password has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_IDLE_TIME =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_IDLE_TIME has invalid" "ERROR"
+            container_log "- - A valid iddle time for connections has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_CONNECTIONS =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_CONNECTIONS has invalid" "ERROR"
+            container_log "- - A valid number of connections has required." "ERROR"
+            return 0
+		fi
+    #
+    container_log " - Database Settings" "INFO"
+	container_log " - - HOST........: ${MARIADB_HOST}" "INFO"
+	container_log " - - PORT........: ${MARIADB_PORT}" "INFO"
+	container_log " - - DATABASE....: ${MARIADB_DATABASE}" "INFO"
+	container_log " - - USERNAME....: ${MARIADB_USERNAME}" "INFO"
+	container_log " - - PASSWORD....: ${MARIADB_PASSWORD}" "INFO"
+	container_log " - - IDLE TIME...: ${MARIADB_IDLE_TIME}" "INFO"
+	container_log " - - CONNECTIONS.: ${MARIADB_CONNECTIONS}" "INFO"
+	export MARIADB_HOST=$MARIADB_HOST
+	export MARIADB_PORT=$MARIADB_PORT
+    export MARIADB_DATABASE=$MARIADB_DATABASE
+    export MARIADB_USERNAME=$MARIADB_USERNAME
+    export MARIADB_PASSWORD=$MARIADB_PASSWORD
+    export MARIADB_IDLE_TIME=$MARIADB_IDLE_TIME
+    export MARIADB_CONNECTIONS=$MARIADB_CONNECTIONS
+    #
+    container_log "SysAdmin Account Params" "INFO"
+    #
+    SYSADMIN_USERNAME=${SYSADMIN_USERNAME:-"SysAdmin"}
+    SYSADMIN_PASSWORD=${SYSADMIN_PASSWORD:-"SysAdmin"}
+    #
+    if [[ "$SYSADMIN_USERNAME" == '' ]];
+        then
+            container_log "- SYSADMIN_USERNAME cannot be empty" "ERROR"
+            container_log "- - A valid account name/login has required." "ERROR"
+            return 0
+		fi
+    if [[ "$SYSADMIN_PASSWORD" == '' ]];
+        then
+            container_log "- SYSADMIN_PASSWORD cannot be empty" "ERROR"
+            container_log "- - A valid account password has required." "ERROR"
+            return 0
+		fi
+    #
+    container_log " - SysAdmin Account Settings" "INFO"
+	container_log " - - Username.: ${SYSADMIN_USERNAME}" "INFO"
+	container_log " - - Password.: ${SYSADMIN_PASSWORD}" "INFO"
+    export SYSADMIN_USERNAME=$SYSADMIN_USERNAME
+	export SYSADMIN_PASSWORD=$SYSADMIN_PASSWORD
+    #
+    container_log "Server Params" "INFO"
+    #
+    #EnableUPnP = True
+    SERVER_UPNP=${SERVER_UPNP:-"True"}                                                                              #EnableUPnP = True
+    SERVER_BIND=${SERVER_BIND:-"*"}                                                                                 #Host = *
+    SERVER_PORT=${SERVER_PORT:-"2106"}                                                                              #Port = 2106
+    SERVER_LISTEN_GAME_SERVER_BIND=${SERVER_LISTEN_GAME_SERVER_BIND:-"*"}                                           #GameServerHost = *
+    SERVER_LISTEN_GAME_SERVER_PORT=${SERVER_LISTEN_GAME_SERVER_PORT:-"9014"}                                        #GameServerPort = 9014
+    SERVER_LISTEN_GAME_SERVER_VERSIONS=${SERVER_LISTEN_GAME_SERVER_VERSIONS:-"6, 14"}                               #ServerVersions = 6, 14
+    SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT=${SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT:-"True"}                          #AcceptNewGameServer = True
+    #
+    SERVER_LOGIN_LICENCE=${SERVER_LOGIN_LICENCE:-"True"}                                                            #ShowLicence = True
+    SERVER_LOGIN_ALLOWED_IPS=${SERVER_LOGIN_ALLOWED_IPS:-"1"}                                                       #MaxConnectionPerIP = 50
+    SERVER_LOGIN_ATTEMPS_MAX=${SERVER_LOGIN_ATTEMPS_MAX:-"5"}                                                       #LoginTryBeforeBan = 5
+    SERVER_LOGIN_ATTEMPS_BAN_SECONDS=${SERVER_LOGIN_ATTEMPS_BAN_SECONDS:-"900"}                                     #LoginBlockAfterBan = 900
+    #
+    SERVER_ACCOUNT_AUTO_CREATE=${SERVER_LOGIN_ACCOUNT_AUTO_CREATE:-"False"}                                         #AutoCreateAccounts = True
+    SERVER_ACCOUNT_AUTO_CREATE_LEVEL=${SERVER_LOGIN_ACCOUNT_AUTO_CREATE_LEVEL:-"0"}                                 #AutoCreateAccountsAccessLevel = 0
+    SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL=${SERVER_ACCEPT_NEW_GAME:-"-127"}                                          #AccountInactiveAccessLevel = -127
+    #
+    SERVER_FLOOD_PROTECTION=${SERVER_FLOOD_PROTECTION:-"True"}                                                      #EnableFloodProtection = True
+    SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME=${SERVER_FLOOD_PROTECTION_FAST_CONNECTION:-"350"}                  #FastConnectionTime = 350    
+    SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT=${SERVER_FLOOD_PROTECTION_FAST_CONNECTION:-"15"}                  #FastConnectionLimit = 15
+    SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME=${SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME:-"700"}         #NormalConnectionTime = 700
+    #
+    SERVER_DATAPACK_ROOT="."                                                                                        #DatapackRoot = .
+    SERVER_DEBUG="False"                                                                                            #Debug = False
+    SERVER_RESTART_SCHEDULE="False"                                                                                 #LoginRestartSchedule = False
+    SERVER_RESTART_TIME=24                                                                                          #LoginRestartTime = 24
+    #
+    container_log " - Server Settings" "INFO"
+    container_log " - - Main" "INFO"
+	container_log " - - - EnableUPnP..........: ${SERVER_UPNP}" "INFO"
+	container_log " - - - Host................: ${SERVER_BIND}" "INFO"
+	container_log " - - - Port................: ${SERVER_PORT}" "INFO"
+	container_log " - - - GameServerHost......: ${SERVER_LISTEN_GAME_SERVER_BIND}" "INFO"
+	container_log " - - - GameServerPort......: ${SERVER_LISTEN_GAME_SERVER_PORT}" "INFO"
+	container_log " - - - ServerVersions......: ${SERVER_LISTEN_GAME_SERVER_VERSIONS}" "INFO"
+	container_log " - - - AcceptNewGameServer.: ${SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT}" "INFO"
+    container_log " - - Login" "INFO"
+	container_log " - - - ShowLicence........: ${SERVER_LOGIN_LICENCE}" "INFO"
+	container_log " - - - MaxConnectionPerIP.: ${SERVER_LOGIN_ALLOWED_IPS}" "INFO"
+	container_log " - - - LoginTryBeforeBan..: ${SERVER_LOGIN_ATTEMPS_MAX}" "INFO"
+	container_log " - - - LoginBlockAfterBan.: ${SERVER_LOGIN_ATTEMPS_BAN_SECONDS}" "INFO"
+    container_log " - - Account" "INFO"
+	container_log " - - - AutoCreateAccounts............: ${SERVER_ACCOUNT_AUTO_CREATE}" "INFO"
+	container_log " - - - AutoCreateAccountsAccessLevel.: ${SERVER_ACCOUNT_AUTO_CREATE_LEVEL}" "INFO"
+	container_log " - - - AccountInactiveAccessLevel....: ${SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL}" "INFO"
+    container_log " - - Flood Protection" "INFO"
+	container_log " - - - EnableFloodProtection.: ${SERVER_FLOOD_PROTECTION}" "INFO"
+	container_log " - - - FastConnectionTime....: ${SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME}" "INFO"
+	container_log " - - - FastConnectionLimit...: ${SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT}" "INFO"
+	container_log " - - - NormalConnectionTime..: ${SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME}" "INFO"
+    container_log " - - General" "INFO"
+	container_log " - - - DatapackRoot.........: ${SERVER_DATAPACK_ROOT}" "INFO"    
+	container_log " - - - Debug................: ${SERVER_DEBUG}" "INFO"    
+	container_log " - - - LoginRestartSchedule.: ${SERVER_RESTART_SCHEDULE}" "INFO"    
+	container_log " - - - LoginRestartTime.....: ${SERVER_RESTART_TIME}" "INFO"    
+    export SERVER_UPNP=$SERVER_UPNP
+    export SERVER_BIND=$SERVER_BIND
+    export SERVER_PORT=$SERVER_PORT
+    export SERVER_LISTEN_GAME_SERVER_BIND=$SERVER_LISTEN_GAME_SERVER_BIND
+    export SERVER_LISTEN_GAME_SERVER_PORT=$SERVER_LISTEN_GAME_SERVER_PORT
+    export SERVER_LISTEN_GAME_SERVER_VERSIONS=$SERVER_LISTEN_GAME_SERVER_VERSIONS
+    export SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT=$SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT
+    export SERVER_LOGIN_LICENCE=$SERVER_LOGIN_LICENCE
+    export SERVER_LOGIN_ALLOWED_IPS=$SERVER_LOGIN_ALLOWED_IPS
+    export SERVER_LOGIN_ATTEMPS_MAX=$SERVER_LOGIN_ATTEMPS_MAX
+    export SERVER_LOGIN_ATTEMPS_BAN_SECONDS=$SERVER_LOGIN_ATTEMPS_BAN_SECONDS
+    export SERVER_ACCOUNT_AUTO_CREATE=$SERVER_ACCOUNT_AUTO_CREATE
+    export SERVER_ACCOUNT_AUTO_CREATE_LEVEL=$SERVER_ACCOUNT_AUTO_CREATE_LEVEL
+    export SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL=$SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL
+    export SERVER_FLOOD_PROTECTION=$SERVER_FLOOD_PROTECTION
+    export SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME=$SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME
+    export SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT=$SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT
+    export SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME=$SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME
+    export SERVER_DATAPACK_ROOT=$SERVER_DATAPACK_ROOT
+    export SERVER_DEBUG=$SERVER_DEBUG
+    export SERVER_RESTART_SCHEDULE=$SERVER_RESTART_SCHEDULE
+	export SERVER_RESTART_TIME=$SERVER_RESTART_TIME
+    #
+    container_log "Banned IPs" "INFO"
+    #
+    BANNED_IP=${BANNED_IP:-""}
+    if [[ "$BANNED_IP" != '' ]];
+        then
+            BANNED_IP_OIFS=$IFS
+            BANNED_IP_LIST=$BANNED_IP
+            IFS='|'            
+            for BANNED_IP_ENTRY in $BANNED_IP_LIST
+                do
+                    container_log "- Banned.: $BANNED_IP_ENTRY" "INFO"
+                done
+            IFS=$BANNED_IP_OIFS
+        else
+            container_log "- Nobody banned" "INFO"
+		fi
+    #
+    export BANNED_IP=$BANNED_IP
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Function CONFIG
+# ---------------------------------------------------------------------------
+container_config() {
+    #
+    container_log "Config Management" "INFO"
+    container_log "- config/server.properties" "INFO"
+	cat > $FILE_SERVER_CONFIG_SERVER << EOF
+# Main
+EnableUPnP = ${SERVER_UPNP}
+Host = ${SERVER_BIND}
+Port = ${SERVER_PORT}
+GameServerHost = ${SERVER_LISTEN_GAME_SERVER_BIND}
+GameServerPort = ${SERVER_LISTEN_GAME_SERVER_PORT}
+ServerVersions = ${SERVER_LISTEN_GAME_SERVER_VERSIONS}
+AcceptNewGameServer = ${SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT}
+# Login
+ShowLicence = ${SERVER_LOGIN_LICENCE}
+LoginTryBeforeBan = ${SERVER_LOGIN_ATTEMPS_MAX}
+LoginBlockAfterBan = ${SERVER_LOGIN_ATTEMPS_BAN_SECONDS}
+MaxConnectionPerIP = ${SERVER_LOGIN_ALLOWED_IPS}
+# Account
+AutoCreateAccounts = ${SERVER_ACCOUNT_AUTO_CREATE}
+AutoCreateAccountsAccessLevel = ${SERVER_ACCOUNT_AUTO_CREATE_LEVEL}
+AccountInactiveAccessLevel = ${SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL}
+# Flood Protection
+EnableFloodProtection = ${SERVER_FLOOD_PROTECTION}
+FastConnectionLimit = ${SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT}
+NormalConnectionTime = ${SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME}
+FastConnectionTime = ${SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME}
+# General
+DatapackRoot = ${SERVER_DATAPACK_ROOT}
+Debug = ${SERVER_DEBUG}
+LoginRestartSchedule = ${SERVER_RESTART_SCHEDULE}
+LoginRestartTime = ${SERVER_RESTART_TIME}
+EOF
+    container_log "- config/database.properties" "INFO"
+	cat > $FILE_SERVER_CONFIG_DATABASE << EOF
+URL = jdbc:mariadb://${MARIADB_HOST}:${MARIADB_PORT}/${MARIADB_DATABASE}
+User = ${MARIADB_USERNAME}
+Password = ${MARIADB_PASSWORD}
+MaxConnections = ${MARIADB_CONNECTIONS}
+MaxIdleTime = ${MARIADB_IDLE_TIME}
+EOF
+    container_log "- config/banned_ip.cfg" "INFO"
+    if [[ "$BANNED_IP" != '' ]];
+        then
+            BANNED_IP_OIFS=$IFS
+            BANNED_IP_LIST=$BANNED_IP
+            IFS='|'            
+            for BANNED_IP_ENTRY in $BANNED_IP_LIST
+                do
+                    BANNED_IP_EXISTS=$(cat $FILE_SERVER_CONFIG_BANNEDIP | grep $BANNED_IP_ENTRY)
+                    if [[ "$BANNED_IP" == '' ]];
+                        then
+                            echo $BANNED_IP_ENTRY >> $FILE_SERVER_CONFIG_BANNEDIP
+                        fi
+                done
+            IFS=$BANNED_IP_OIFS
+		fi
+    container_log "- cli/config/login-server.properties" "INFO"
+	cat > $FILE_CLIENT_CONFIG_DATABASE << EOF
+DatabaseURL=jdbc:mariadb://${MARIADB_HOST}:${MARIADB_PORT}
+DatabaseName=${MARIADB_DATABASE}
+DatabaseUser=${MARIADB_USERNAME}
+DatabasePassword=${MARIADB_PASSWORD}
+EOF
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Function DATABASE
+# ---------------------------------------------------------------------------
+container_database() {
+    #
+    container_log "Database Management" "INFO"
+    #
+    container_log "- Checking connectivity" "INFO"
+    CHECK_MARIADB_CONNECTION=$(mysql -h ${MARIADB_HOST} -u${MARIADB_USERNAME} -p${MARIADB_PASSWORD} -e "SHOW DATABASES" 2>&1)
+    if [[ $? -eq 1 ]];
+        then
+            container_log "- - Can't connect on database" "ERROR"
+            return 0
+        else
+            container_log "- - Successfully connected" "INFO"
+		fi
+    #
+    container_log "- Checking ${MARIADB_DATABASE} on ${MARIADB_HOST}" "INFO"
+    CHECK_MARIADB_CONNECTION=$(mysql -h ${MARIADB_HOST} -u${MARIADB_USERNAME} -p${MARIADB_PASSWORD} -e "SHOW DATABASES" | grep ${MARIADB_DATABASE})
+    if [[ "$CHECK_MARIADB_CONNECTION" == '' ]];
+        then
+            container_log "- - ${MARIADB_DATABASE} not exists on ${MARIADB_HOST}" "WARN"
+            container_log "##########################################################################################"
+            cd /opt/l2jserver/cli/;
+            printf "db install -sql /opt/l2jserver/sql -u ${MARIADB_USERNAME} -p ${MARIADB_PASSWORD} -m FULL -t LOGIN -c -mods" | /bin/sh /opt/l2jserver/cli/l2jcli.sh
+            cd ..;
+            container_log "##########################################################################################"
+            container_log "- - ${MARIADB_DATABASE} has been created on ${MARIADB_HOST}" "INFO"
+        else
+            container_log "- - ${MARIADB_DATABASE} exists on ${MARIADB_HOST}" "INFO"
+		fi
+    #
+	return 1 
+}
+# ---------------------------------------------------------------------------
+# Function SYSADMIN
+# ---------------------------------------------------------------------------
+container_sysadmin() {
+    #
+    container_log "SysAdmin Management" "INFO"
+    #
+    container_log "- Checking ${SYSADMIN_USERNAME} account" "INFO"
+    CHECK_SYSADMIN=$(mysql -h ${MARIADB_HOST} -u${MARIADB_USERNAME} -p${MARIADB_PASSWORD} -D${MARIADB_DATABASE} -e "select login from l2jlogin.accounts where login = '${SYSADMIN_USERNAME}';")
+    if [[ "$CHECK_SYSADMIN" == "" ]];
+        then
+            container_log "- - ${SYSADMIN_USERNAME} not exists" "WARN"
+            container_log "##########################################################################################" "WARN"
+            cd /opt/l2jserver/cli/;
+            printf "account create -u ${SYSADMIN_USERNAME} -p ${SYSADMIN_PASSWORD} -a 8" | /bin/sh  /opt/l2jserver/cli/l2jcli.sh;
+            cd ..;
+            container_log "##########################################################################################" "WARN"
+            container_log "- - ${SYSADMIN_USERNAME} account has been created" "INFO"
+        else
+            container_log "- - ${SYSADMIN_USERNAME} exists" "INFO"
+		fi
+    #
+    return 1
+}
+# ---------------------------------------------------------------------------
+# Main Events
+# ---------------------------------------------------------------------------
+container_copyright
+#
+container_params
+CONTAINER_PARAMS_CHECK=$?
+if [[ $CONTAINER_PARAMS_CHECK -eq 0 ]];
+	then
+        exit 1
+	fi
+#
+container_config
+CONTAINER_CONFIG_CHECK=$?
+if [[ $CONTAINER_CONFIG_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_database
+CONTAINER_DATABASE_CHECK=$?
+if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_sysadmin
+CONTAINER_SYSADMIN_CHECK=$?
+if [[ $CONTAINER_SYSADMIN_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_log "##########################################################################################" "INFO"
+#
+cd ${SCRIPT_PATH}
+java -Xms${JAVA_XMS}m -Xmx${JAVA_XMX}m -jar l2jlogin.jar
+#
+container_log "##########################################################################################" "INFO"
+#
+exit 0
