@@ -2,7 +2,6 @@
 # ---------------------------------------------------------------------------
 # Script Path
 # ---------------------------------------------------------------------------
-# SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 SCRIPT_PATH="/opt/l2jserver"
 # ---------------------------------------------------------------------------
 # Config Paths
@@ -12,6 +11,7 @@ PATH_CLIENT_CONFIG="${SCRIPT_PATH}/cli/config"
 # ---------------------------------------------------------------------------
 # Config Files
 # ---------------------------------------------------------------------------
+FILE_SERVER_CONFIG_SERVER="${PATH_SERVER_CONFIG}/server.properties"
 FILE_SERVER_CONFIG_DATABASE="${PATH_SERVER_CONFIG}/database.properties"
 FILE_CLIENT_CONFIG_DATABASE="${PATH_CLIENT_CONFIG}/login-server.properties"
 # ---------------------------------------------------------------------------
@@ -24,9 +24,6 @@ container_copyright() {
 # Function TRAP
 # ---------------------------------------------------------------------------
 container_trap() {
-    #
-    # Killing all java process
-    #
     kill $(ps aux | grep java | grep '.jar' | awk '{print $1}')
 }
 trap container_trap SIGINT SIGTERM
@@ -45,7 +42,7 @@ container_log() {
 # ---------------------------------------------------------------------------
 # Function File Check
 # ---------------------------------------------------------------------------
-container_file_check() {
+container_structure_check() {
     FILE_CHECK_SOURCE=$1
     FILE_CHECK_TARGET=$2
     PATH_CHECK_TARGET=$(dirname $FILE_CHECK_TARGET)
@@ -61,34 +58,47 @@ container_file_check() {
 # ---------------------------------------------------------------------------
 # Function Structure Check
 # ---------------------------------------------------------------------------
-container_structure_check() {
+container_structure() {
     #
     container_log "Structure File Check" "INFO"
     #
-    container_log "- Config Files" "INFO"
-    find ${SCRIPT_PATH}/config.d/ -type f > ${SCRIPT_PATH}/config.d-files
-    cat ${SCRIPT_PATH}/config.d-files | while read FILE_FULLPATH; do container_file_check $FILE_FULLPATH $(echo "$FILE_FULLPATH" | sed "s/config.d/config/g"); done
     FILE_COUNT_SOURCE=$(ls -lR ${SCRIPT_PATH}/config.d/ | wc -l)
+    container_log "- ${FILE_COUNT_SOURCE} Config Files" "INFO"
+    find ${SCRIPT_PATH}/config.d/ -type f > ${SCRIPT_PATH}/config.d-files
+    cat ${SCRIPT_PATH}/config.d-files | while read FILE_FULLPATH; do container_structure_check $FILE_FULLPATH $(echo "$FILE_FULLPATH" | sed "s/config.d/config/g"); done
     FILE_COUNT_TARGET=$(ls -lR ${SCRIPT_PATH}/config/ | wc -l)
     if [[ $FILE_COUNT_SOURCE -gt $FILE_COUNT_TARGET ]];
         then
-            container_log "- Config Files structure mismatch" "ERROR"
+            container_log "- - Config Files structure mismatch" "ERROR"
             return 0
         else
-            container_log "- Config Files structure match" "INFO"
+            container_log "- - Config Files structure match" "INFO"
         fi
     #
-    container_log "- Data Files" "INFO"
-    find ${SCRIPT_PATH}/data.d/ -type f > ${SCRIPT_PATH}/data.d-files
-    cat ${SCRIPT_PATH}/data.d-files | while read FILE_FULLPATH; do container_file_check $FILE_FULLPATH $(echo "$FILE_FULLPATH" | sed "s/data.d/data/g"); done
     FILE_COUNT_SOURCE=$(ls -lR ${SCRIPT_PATH}/data.d/ | wc -l)
+    container_log "- ${FILE_COUNT_SOURCE} Data Files" "INFO"
+    find ${SCRIPT_PATH}/data.d/ -type f > ${SCRIPT_PATH}/data.d-files
+    cat ${SCRIPT_PATH}/data.d-files | while read FILE_FULLPATH; do container_structure_check $FILE_FULLPATH $(echo "$FILE_FULLPATH" | sed "s/data.d/data/g"); done
     FILE_COUNT_TARGET=$(ls -lR ${SCRIPT_PATH}/data/ | wc -l)
     if [[ $FILE_COUNT_SOURCE -gt $FILE_COUNT_TARGET ]];
         then
-            container_log "- Data Files structure mismatch" "ERROR"
+            container_log "- - Data Files structure mismatch" "ERROR"
             return 0
         else
-            container_log "- Data Files structure match" "INFO"
+            container_log "- - Data Files structure match" "INFO"
+        fi
+    #
+    FILE_COUNT_SOURCE=$(ls -lR ${SCRIPT_PATH}/script.d/ | wc -l)
+    container_log "- ${FILE_COUNT_SOURCE} Script Files" "INFO"
+    find ${SCRIPT_PATH}/script.d/ -type f > ${SCRIPT_PATH}/script.d-files
+    cat ${SCRIPT_PATH}/script.d-files | while read FILE_FULLPATH; do container_structure_check $FILE_FULLPATH $(echo "$FILE_FULLPATH" | sed "s/script.d/script/g"); done
+    FILE_COUNT_TARGET=$(ls -lR ${SCRIPT_PATH}/script/ | wc -l)
+    if [[ $FILE_COUNT_SOURCE -gt $FILE_COUNT_TARGET ]];
+        then
+            container_log "- - Script Files structure mismatch" "ERROR"
+            return 0
+        else
+            container_log "- - Script Files structure match" "INFO"
         fi
     #
     return 1
@@ -217,6 +227,57 @@ container_params() {
     export MARIADB_IDLE_TIME=$MARIADB_IDLE_TIME
     export MARIADB_CONNECTIONS=$MARIADB_CONNECTIONS
     #
+    container_log "Server Params" "INFO"
+    #
+    SERVER_ID=${SERVER_ID:-"1"}                                                                                     #RequestServerId = 1
+    SERVER_UPNP=${SERVER_UPNP:-"True"}                                                                              #EnableUPnP = True
+    SERVER_BIND=${SERVER_BIND:-"*"}                                                                                 #Host = *
+    SERVER_PORT=${SERVER_PORT:-"7777"}                                                                              #Port = 7777
+    SERVER_PLAYER_MAX=${SERVER_ONLINE_MAX:-"500"}                                                                   #MaxOnlineUsers = 500
+    SERVER_ACCEPT_ALTID=${SERVER_ACCEPT_ALTID:-"True"}                                                              #AcceptAlternateId = True
+    #
+    LOGIN_HOST=${LOGIN_HOST:-"127.0.0.1"}                                                                           #LoginHost = *
+    LOGIN_PORT=${LOGIN_PORT:-"9014"}                                                                                #LoginPort = 9014
+    #
+    SERVER_DATAPACK_ROOT="."                                                                                        #DatapackRoot = .
+    SERVER_RESERVE_HOST_ON_LOGIN="False"                                                                            #ReserveHostOnLogin = False
+    SERVER_SCRIPT_ROOT="./script"                                                                                   #ScriptRoot = ./script
+    SERVER_ALLOWED_PROTOCOL="267,268,271,273"                                                                       #AllowedProtocolRevisions = 267,268,271,273
+    SERVER_ID_FACTORY="BitSet"                                                                                      #IdFactory = BitSet
+    SERVER_BAD_ID_CHECKING="True"                                                                                   #BadIdChecking = True
+    #
+    container_log " - Server Settings" "INFO"
+    container_log " - - Main" "INFO"
+	container_log " - - - EnableUPnP........: ${SERVER_UPNP}" "INFO"
+	container_log " - - - Host..............: ${SERVER_BIND}" "INFO"
+	container_log " - - - Port..............: ${SERVER_PORT}" "INFO"
+    container_log " - - - MaxOnlineUsers....: ${SERVER_PORT}" "INFO"
+	container_log " - - - RequestServerId...: ${SERVER_ID}" "INFO"
+    container_log " - - - AcceptAlternateId.: ${SERVER_ACCEPT_ALTID}" "INFO"
+    container_log " - - Login" "INFO"
+	container_log " - - - LoginHost......: ${LOGIN_HOST}" "INFO"
+	container_log " - - - LoginPort......: ${LOGIN_PORT}" "INFO"
+    container_log " - - General" "INFO"
+	container_log " - - - ScriptRoot...............: ${SERVER_SCRIPT_ROOT}" "INFO"    
+	container_log " - - - DatapackRoot.............: ${SERVER_DATAPACK_ROOT}" "INFO"    
+	container_log " - - - IdFactory................: ${SERVER_ID_FACTORY}" "INFO"    
+	container_log " - - - BadIdChecking............: ${SERVER_BAD_ID_CHECKING}" "INFO"    
+	container_log " - - - AllowedProtocolRevisions.: ${SERVER_ALLOWED_PROTOCOL}" "INFO"    
+    export SERVER_ID=$SERVER_ID
+    export SERVER_UPNP=$SERVER_UPNP
+    export SERVER_BIND=$SERVER_BIND
+    export SERVER_PORT=$SERVER_PORT
+    export SERVER_PLAYER_MAX=$SERVER_PLAYER_MAX
+    export SERVER_ACCEPT_ALTID=$SERVER_ACCEPT_ALTID
+    export LOGIN_HOST=$LOGIN_HOST
+    export LOGIN_PORT=$LOGIN_PORT
+    export SERVER_DATAPACK_ROOT=$SERVER_DATAPACK_ROOT
+    export SERVER_RESERVE_HOST_ON_LOGIN=$SERVER_RESERVE_HOST_ON_LOGIN
+    export SERVER_SCRIPT_ROOT=$SERVER_SCRIPT_ROOT
+    export SERVER_ALLOWED_PROTOCOL=$SERVER_ALLOWED_PROTOCOL
+    export SERVER_ID_FACTORY=$SERVER_ID_FACTORY
+    export SERVER_BAD_ID_CHECKING=$SERVER_BAD_ID_CHECKING
+    #
 	return 1
 }
 # ---------------------------------------------------------------------------
@@ -225,6 +286,24 @@ container_params() {
 container_config() {
     #
     container_log "Config Management" "INFO"
+    #
+    container_log "- config/server.properties" "INFO"
+	cat > $FILE_SERVER_CONFIG_SERVER << EOF
+EnableUPnP = ${SERVER_UPNP}
+Host = ${SERVER_BIND}
+Port = ${SERVER_PORT}
+LoginHost = ${LOGIN_HOST}
+LoginPort = ${LOGIN_PORT}
+RequestServerId = ${SERVER_ID}
+AcceptAlternateId = ${SERVER_ACCEPT_ALTID}
+ReserveHostOnLogin = ${SERVER_RESERVE_HOST_ON_LOGIN}
+DatapackRoot = ${SERVER_DATAPACK_ROOT}
+ScriptRoot = ${SERVER_SCRIPT_ROOT}
+MaxOnlineUsers = ${SERVER_PLAYER_MAX}
+AllowedProtocolRevisions = ${SERVER_ALLOWED_PROTOCOL}
+IdFactory = ${SERVER_ID_FACTORY}
+BadIdChecking = ${SERVER_BAD_ID_CHECKING}
+EOF
     container_log "- config/database.properties" "INFO"
 	cat > $FILE_SERVER_CONFIG_DATABASE << EOF
 URL = jdbc:mariadb://${MARIADB_HOST}:${MARIADB_PORT}/${MARIADB_DATABASE}
@@ -233,22 +312,7 @@ Password = ${MARIADB_PASSWORD}
 MaxConnections = ${MARIADB_CONNECTIONS}
 MaxIdleTime = ${MARIADB_IDLE_TIME}
 EOF
-    container_log "- config/banned_ip.cfg" "INFO"
-    if [[ "$BANNED_IP" != '' ]];
-        then
-            BANNED_IP_OIFS=$IFS
-            BANNED_IP_LIST=$BANNED_IP
-            IFS='|'            
-            for BANNED_IP_ENTRY in $BANNED_IP_LIST
-                do
-                    BANNED_IP_EXISTS=$(cat $FILE_SERVER_CONFIG_BANNEDIP | grep $BANNED_IP_ENTRY)
-                    if [[ "$BANNED_IP" == '' ]];
-                        then
-                            echo $BANNED_IP_ENTRY >> $FILE_SERVER_CONFIG_BANNEDIP
-                        fi
-                done
-            IFS=$BANNED_IP_OIFS
-		fi
+    #
     container_log "- cli/config/login-server.properties" "INFO"
 	cat > $FILE_CLIENT_CONFIG_DATABASE << EOF
 DatabaseURL=jdbc:mariadb://${MARIADB_HOST}:${MARIADB_PORT}
@@ -297,8 +361,6 @@ container_database() {
 # Main Events
 # ---------------------------------------------------------------------------
 container_copyright
-container_structure_check
-exit 0
 #
 container_params
 CONTAINER_PARAMS_CHECK=$?
@@ -321,10 +383,16 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 		exit 1
 	fi
 #
+container_structure
+CONTAINER_STRUCTURE_CHECK=$?
+if [[ $CONTAINER_STRUCTURE_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
 container_log "##########################################################################################" "INFO"
 #
-cd ${SCRIPT_PATH}
-java -Xms${JAVA_XMS}m -Xmx${JAVA_XMX}m -jar l2jserver.jar
+cd ${SCRIPT_PATH} &&  java -Xms${JAVA_XMS}m -Xmx${JAVA_XMX}m -jar l2jserver.jar
 #
 container_log "##########################################################################################" "INFO"
 #

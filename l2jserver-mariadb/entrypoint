@@ -2,8 +2,7 @@
 # ---------------------------------------------------------------------------
 # Script Path
 # ---------------------------------------------------------------------------
-# SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-SCRIPT_PATH="/opt/l2jserver"
+SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # ---------------------------------------------------------------------------
 # Function COPYRIGHT
 # ---------------------------------------------------------------------------
@@ -91,7 +90,7 @@ container_setup() {
         fi
         export MARIADB_PASSWORD_ROOT=$MARIADB_PASSWORD_ROOT
         container_log "- Initializing root password" "INFO"
-        container_log "- - root password.: " "INFO"MARIADB_PASSWORD_ROOT
+        container_log "- - root password.: ${MARIADB_PASSWORD_ROOT}" "INFO"
         tfile=`mktemp`
         if [ ! -f "$tfile" ]; then
             return 0

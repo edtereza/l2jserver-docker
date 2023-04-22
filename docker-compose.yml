@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.4'
 services:
   l2jserver-mariadb:
     container_name: l2jserver-mariadb
@@ -24,8 +24,7 @@ services:
     image: edtech/l2jserver-login:2.6.6.0
     restart: always
     depends_on:
-      l2jserver-mariadb: 
-        condition: service_healthy
+      - l2jserver-mariadb
     environment:
       JAVA_XMS: "128"
       JAVA_XMX: "256"

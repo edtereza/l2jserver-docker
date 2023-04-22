@@ -13,23 +13,26 @@ LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
       
 ENV PATH_SERVER="/opt/l2jserver"
 ENV PATH_CLIENT="/opt/l2jserver/cli"
-ENV PATH_SOURCE="/opt/l2jserver/git"
+ENV PATH_SOURCE="/opt/l2jserver/source"
 
 ENV HTTP_SOURCE_LOGIN="https://bitbucket.org/l2jserver/l2j-server-login.git"
 ENV HTTP_SOURCE_CLIENT="https://github.com/edtereza/l2jserver-cli.git"
 ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 
-RUN apk update && apk --no-cache add git maven mariadb-client unzip openjdk17-jdk cracklib && \
-    mkdir -p "$PATH_SOURCE" && \
+RUN mkdir -p "$PATH_SOURCE" && \
+    apk update && apk --no-cache add git maven mariadb-client unzip openjdk17-jdk cracklib && \
     git clone --branch master --single-branch "$HTTP_SOURCE_LOGIN" "$PATH_SOURCE/l2j-server-login" && \
     cd "$PATH_SOURCE/l2j-server-login" && chmod +x mvnw && ./mvnw install && \
     unzip "$PATH_SOURCE/l2j-server-login/target/*.zip" -d "$PATH_SERVER" && \
+    rm "$PATH_SOURCE/l2j-server-login" -f -R && \
     git clone "$HTTP_SOURCE_CLIENT" "$PATH_SOURCE/l2j-server-cli" && \
     cd "$PATH_SOURCE/l2j-server-cli" && chmod +x mvnw && ./mvnw install && \
     unzip "$PATH_SOURCE/l2j-server-cli/target/*.zip" -d "$PATH_CLIENT" && \
+    rm "$PATH_SOURCE/l2j-server-cli" -f -R && \
     chmod +x "$PATH_CLIENT/l2jcli.sh" && \
     git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker" && \
     mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint" && \
+    rm "$PATH_SOURCE/l2j-server-docker" -f -R && \
     ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint && \
     mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck" && \
     ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck && \

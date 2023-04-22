@@ -14,7 +14,6 @@ LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
 ENV PATH_SERVER="/opt/l2jserver"
 ENV PATH_CLIENT="/opt/l2jserver/cli"
 ENV PATH_SOURCE="/opt/l2jserver/source"
-ENV PATH_GEODATA="/opt/l2jserver/geodata"
 
 ENV HTTP_SOURCE_GAME="https://bitbucket.org/l2jserver/l2j-server-game.git"
 ENV HTTP_SOURCE_DATAPACK="https://bitbucket.org/l2jserver/l2j-server-datapack.git"
@@ -25,7 +24,6 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 RUN apk update && apk --no-cache add git maven mariadb-client unzip cracklib openjdk17-jdk
 
 RUN mkdir -p "$PATH_SOURCE"
-RUN mkdir -p "$PATH_GEODATA"
 
 RUN git clone --branch master --single-branch "$HTTP_SOURCE_GAME" "$PATH_SOURCE/l2j-server-game" 
 RUN cd "$PATH_SOURCE/l2j-server-game" && chmod +x mvnw && ./mvnw install -DskipTests
@@ -47,18 +45,18 @@ RUN unzip "$PATH_SOURCE/l2j-server-cli/target/*.zip" -d "$PATH_CLIENT"
 RUN rm "$PATH_SOURCE/l2j-server-cli" -R -f
 RUN chmod +x "$PATH_CLIENT/l2jcli.sh"
 
-
+RUN mv "$PATH_SERVER/data" "$PATH_SERVER/data.d"
+RUN mv "$PATH_SERVER/config" "$PATH_SERVER/config.d"
+RUN mv "$PATH_SERVER/script" "$PATH_SERVER/script.d"
+RUN mkdir -p "$PATH_SERVER/data"
+RUN mkdir -p "$PATH_SERVER/config"
+RUN mkdir -p "$PATH_SERVER/script"
 
 RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker"
 RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint"
 RUN ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint
 RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck"
 RUN ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
-
-RUN mv "$PATH_SERVER/data" "$PATH_SERVER/data.d"
-RUN mv "$PATH_SERVER/config" "$PATH_SERVER/config.d"
-RUN mkdir -p "$PATH_SERVER/data"
-RUN mkdir -p "$PATH_SERVER/config"
 
 RUN apk del maven git unzip
 RUN rm "$PATH_SOURCE" -R -f
