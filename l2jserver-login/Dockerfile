@@ -19,27 +19,23 @@ ENV HTTP_SOURCE_LOGIN="https://bitbucket.org/l2jserver/l2j-server-login.git"
 ENV HTTP_SOURCE_CLIENT="https://github.com/edtereza/l2jserver-cli.git"
 ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 
-RUN apk update && apk --no-cache add git maven mariadb-client unzip openjdk17-jdk
-RUN mkdir -p "$PATH_SOURCE"
-
-RUN git clone --branch master --single-branch "$HTTP_SOURCE_LOGIN" "$PATH_SOURCE/l2j-server-login"
-RUN cd "$PATH_SOURCE/l2j-server-login" && chmod +x mvnw && ./mvnw install
-RUN unzip "$PATH_SOURCE/l2j-server-login/target/*.zip" -d "$PATH_SERVER"
-
-RUN git clone "$HTTP_SOURCE_CLIENT" "$PATH_SOURCE/l2j-server-cli"
-RUN cd "$PATH_SOURCE/l2j-server-cli" && chmod +x mvnw && ./mvnw install
-RUN unzip "$PATH_SOURCE/l2j-server-cli/target/*.zip" -d "$PATH_CLIENT"
-RUN chmod +x "$PATH_CLIENT/l2jcli.sh"
-
-RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker"
-RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint"
-RUN ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint
-RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck"
-RUN ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
-
-RUN apk del maven git unzip
-RUN rm "$PATH_SOURCE" -R -f
-RUN rm -R -f /var/cache/apk/*
+RUN apk update && apk --no-cache add git maven mariadb-client unzip openjdk17-jdk cracklib && \
+    mkdir -p "$PATH_SOURCE" && \
+    git clone --branch master --single-branch "$HTTP_SOURCE_LOGIN" "$PATH_SOURCE/l2j-server-login" && \
+    cd "$PATH_SOURCE/l2j-server-login" && chmod +x mvnw && ./mvnw install && \
+    unzip "$PATH_SOURCE/l2j-server-login/target/*.zip" -d "$PATH_SERVER" && \
+    git clone "$HTTP_SOURCE_CLIENT" "$PATH_SOURCE/l2j-server-cli" && \
+    cd "$PATH_SOURCE/l2j-server-cli" && chmod +x mvnw && ./mvnw install && \
+    unzip "$PATH_SOURCE/l2j-server-cli/target/*.zip" -d "$PATH_CLIENT" && \
+    chmod +x "$PATH_CLIENT/l2jcli.sh" && \
+    git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker" && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint" && \
+    ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck" && \
+    ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck && \
+    apk del maven git unzip && \
+    rm "$PATH_SOURCE" -R -f && \
+    rm -R -f /var/cache/apk/*
 
 EXPOSE 9014 2106
 

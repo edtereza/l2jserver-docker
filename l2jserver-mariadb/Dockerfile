@@ -13,20 +13,17 @@ LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
       
 ENV PATH_SERVER="/opt/l2jserver"
 ENV PATH_SOURCE="/opt/l2jserver/git"
-
 ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 
-RUN apk update && apk --no-cache add git mariadb mariadb-client mariadb-server-utils pwgen
-
-RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker"
-RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-mariadb/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint"
-RUN mv "$PATH_SOURCE/l2j-server-docker/l2jserver-mariadb/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck"
-RUN ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint
-RUN ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
-
-RUN apk del git
-RUN rm "$PATH_SOURCE" -R -f
-RUN rm -R -f /var/cache/apk/*
+RUN apk update && apk --no-cache add git mariadb mariadb-client mariadb-server-utils pwgen cracklib && \
+    git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker" && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-mariadb/entrypoint" "$PATH_SERVER/entrypoint" && chmod +x "$PATH_SERVER/entrypoint" && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-mariadb/healthcheck" "$PATH_SERVER/healthcheck" && chmod +x "$PATH_SERVER/healthcheck" && \
+    ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint && \
+    ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck && \
+    apk del git && \
+    rm "$PATH_SOURCE" -R -f && \
+    rm -R -f /var/cache/apk/*
 
 EXPOSE 3306
 

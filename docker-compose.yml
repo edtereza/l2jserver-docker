@@ -2,28 +2,30 @@ version: '3.3'
 services:
   l2jserver-mariadb:
     container_name: l2jserver-mariadb
-    image: edtereza/l2jserver-mariadb:10.6.12
+    image: edtech/l2jserver-mariadb:10.6.12
     restart: always
     cap_add:
       - SYS_NICE
     environment:
       MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: "l2jserver"
+      MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
     healthcheck:
-      test: healthcheck
+      test: ["CMD", "healthcheck"]
       interval: 5s
-      timeout: 3s
-      retries: 5
+      timeout: 2s
+      retries: 3
+      start_period: 5s
     ports:
       - "3306:3306"
     volumes:
       - ./mariadb:/var/lib/mysql
   l2jserver-login:
     container_name: l2jserver-login
-    image: edtereza/l2jserver-login:2.6.6.0
+    image: edtech/l2jserver-login:2.6.6.0
     restart: always
     depends_on:
-      - l2jserver-mariadb
+      l2jserver-mariadb: 
+        condition: service_healthy
     environment:
       JAVA_XMS: "128"
       JAVA_XMX: "256"
@@ -31,7 +33,7 @@ services:
       MARIADB_PORT: "3306"
       MARIADB_DATABASE: "l2jlogin"
       MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: "l2jserver"
+      MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
       SERVER_UPNP: "True"
       SERVER_BIND: "*"
       SERVER_PORT: "2106"
@@ -53,10 +55,11 @@ services:
       SYSADMIN_USERNAME: "l2jserver"
       SYSADMIN_PASSWORD: "l2jserver"
     healthcheck:
-      test: healthcheck
+      test: ["CMD", "healthcheck"]
       interval: 5s
-      timeout: 3s
-      retries: 5
+      timeout: 2s
+      retries: 3
+      start_period: 5s
     ports:
       - "9014:9014"
       - "2106:2106"
