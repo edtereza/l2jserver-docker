@@ -2,7 +2,7 @@ version: '3.4'
 services:
   l2jserver-mariadb:
     container_name: l2jserver-mariadb
-    image: edtech/l2jserver-mariadb:10.6.12
+    image: edtereza/l2jserver-mariadb:10.6.12
     restart: always
     cap_add:
       - SYS_NICE
@@ -10,9 +10,9 @@ services:
       MARIADB_USERNAME: "l2jserver"
       MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
     healthcheck:
-      test: ["CMD", "healthcheck"]
+      test: healthcheck
       interval: 5s
-      timeout: 2s
+      timeout: 1s
       retries: 3
       start_period: 5s
     ports:
@@ -21,7 +21,7 @@ services:
       - ./mariadb:/var/lib/mysql
   l2jserver-login:
     container_name: l2jserver-login
-    image: edtech/l2jserver-login:2.6.6.0
+    image: edtereza/l2jserver-login:2.6.6.0
     restart: always
     depends_on:
       - l2jserver-mariadb
@@ -54,7 +54,7 @@ services:
       SYSADMIN_USERNAME: "l2jserver"
       SYSADMIN_PASSWORD: "l2jserver"
     healthcheck:
-      test: ["CMD", "healthcheck"]
+      test: healthcheck
       interval: 5s
       timeout: 2s
       retries: 3

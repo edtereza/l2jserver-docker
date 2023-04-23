@@ -13,7 +13,7 @@ PATH_CLIENT_CONFIG="${SCRIPT_PATH}/cli/config"
 # ---------------------------------------------------------------------------
 FILE_SERVER_CONFIG_SERVER="${PATH_SERVER_CONFIG}/server.properties"
 FILE_SERVER_CONFIG_DATABASE="${PATH_SERVER_CONFIG}/database.properties"
-FILE_CLIENT_CONFIG_DATABASE="${PATH_CLIENT_CONFIG}/login-server.properties"
+FILE_CLIENT_CONFIG_DATABASE="${PATH_CLIENT_CONFIG}/game-server.properties"
 # ---------------------------------------------------------------------------
 # Function COPYRIGHT
 # ---------------------------------------------------------------------------
@@ -313,7 +313,7 @@ MaxConnections = ${MARIADB_CONNECTIONS}
 MaxIdleTime = ${MARIADB_IDLE_TIME}
 EOF
     #
-    container_log "- cli/config/login-server.properties" "INFO"
+    container_log "- cli/config/game-server.properties" "INFO"
 	cat > $FILE_CLIENT_CONFIG_DATABASE << EOF
 DatabaseURL=jdbc:mariadb://${MARIADB_HOST}:${MARIADB_PORT}
 DatabaseName=${MARIADB_DATABASE}

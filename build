@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # ---------------------------------------------------------------------------
 # Script Path
 # ---------------------------------------------------------------------------
-SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+INSTALL_IPV4=$(hostname -I | awk '{print $1}')
+INSTALL_PATH=$( cd "$( dirname "$0" )" && pwd )
+INSTALL_PASSWORD=$(pvs -o uuid | awk 'NR==2 {print; exit}' | sed "s/-//g")
+INSTALL_PASSWORD=${INSTALL_PASSWORD:1:16}
 # ---------------------------------------------------------------------------
 # Image Versions
 # ---------------------------------------------------------------------------
@@ -11,59 +14,92 @@ DOCKER_IMAGE_VERSION_GAME="2.6.3.0"
 DOCKER_IMAGE_VERSION_LOGIN="2.6.6.0"
 DOCKER_IMAGE_VERSION_MARIADB="10.6.12"
 # ---------------------------------------------------------------------------
-# Manage binfmt dependences
+# Function LOG
 # ---------------------------------------------------------------------------
-apt install -y binfmt-support;
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes;
+build_log() {
+	LOG_TEXT=$1
+    LOG_INFO=$2
+	LOG_DATE=$(date "+%Y-%m-%d")
+    LOG_TIME=$(date "+%H:%M:%S")
+	# STDOUT
+	echo "[$LOG_DATE $LOG_TIME] [$LOG_INFO] $LOG_TEXT"
+}
 # ---------------------------------------------------------------------------
 # Removing all docker images
 # ---------------------------------------------------------------------------
+build_log "Removing all containers and imagens" "INFO"
+build_log "############################################################" "INFO"
 docker rm --force $(docker ps --format "{{.ID}}")
+build_log "############################################################" "INFO"
 docker rmi --force $(docker image list --format "{{.ID}}")
+build_log "############################################################" "INFO"
+# ---------------------------------------------------------------------------
+# Manage binfmt dependences
+# ---------------------------------------------------------------------------
+build_log "Managind binfmt dependences" "INFO"
+build_log "############################################################" "INFO"
+apt install -y binfmt-support;
+build_log "############################################################" "INFO"
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes;
+build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Creating docker build enviroment
 # ---------------------------------------------------------------------------
-docker buildx create --name l2jserver;
-docker buildx use l2jserver;
+build_log "Creating docker buildx enviroment" "INFO"
+build_log "############################################################" "INFO"
+docker buildx create --name l2jserver && docker buildx use l2jserver;
+build_log "############################################################" "INFO"
 docker buildx inspect --bootstrap;
+build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer MariaDB
 # ---------------------------------------------------------------------------
-cd ${SCRIPT_PATH}/l2jserver-mariadb;
-docker build --no-cache --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
+build_log "Building L2JServer MariaDB Container" "INFO"
+build_log "############################################################" "INFO"
+cd ${INSTALL_PATH}/l2jserver-mariadb;
+docker build --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
+build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer Login
 # ---------------------------------------------------------------------------
-cd ${SCRIPT_PATH}/l2jserver-login;
-docker build --no-cache --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
+build_log "Building L2JServer Login Server Container" "INFO"
+build_log "############################################################" "INFO"
+cd ${INSTALL_PATH}/l2jserver-login;
+docker build --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
+build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer Game
 # ---------------------------------------------------------------------------
-cd ${SCRIPT_PATH}/l2jserver-game;
-docker build --no-cache --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
+build_log "Building L2JServer Game Server Container" "INFO"
+build_log "############################################################" "INFO"
+cd ${INSTALL_PATH}/l2jserver-game;
+docker build --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
+build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Back to main folder
 # ---------------------------------------------------------------------------
-cd ${SCRIPT_PATH}
+cd ${INSTALL_PATH}
 # ---------------------------------------------------------------------------
 # Rebuild docker-compose.yml
 # ---------------------------------------------------------------------------
-	cat > ${SCRIPT_PATH}/docker-compose.yml << EOF
+build_log "Creating L2JServer docker-compose settings" "INFO"
+build_log "############################################################" "INFO"
+cat > ${INSTALL_PATH}/docker-compose.yml << EOF
 version: '3.4'
 services:
   l2jserver-mariadb:
     container_name: l2jserver-mariadb
-    image: edtech/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB}
+    image: edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB}
     restart: always
     cap_add:
       - SYS_NICE
     environment:
       MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
+      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
     healthcheck:
       test: healthcheck
       interval: 5s
-      timeout: 2s
+      timeout: 1s
       retries: 3
       start_period: 5s
     ports:
@@ -72,20 +108,19 @@ services:
       - ./mariadb:/var/lib/mysql
   l2jserver-login:
     container_name: l2jserver-login
-    image: edtech/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN}
+    image: edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN}
     restart: always
-    links:
-      - l2jserver-mariadb
+    network_mode: "host"
     depends_on:
       - l2jserver-mariadb
     environment:
       JAVA_XMS: "128"
       JAVA_XMX: "256"
-      MARIADB_HOST: l2jserver-mariadb
+      MARIADB_HOST: ${INSTALL_IPV4}
       MARIADB_PORT: "3306"
       MARIADB_DATABASE: "l2jlogin"
       MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
+      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
       SERVER_UPNP: "True"
       SERVER_BIND: "*"
       SERVER_PORT: "2106"
@@ -117,24 +152,22 @@ services:
       - "2106:2106"
   l2jserver-game:
     container_name: l2jserver-game
-    image: edtech/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
+    image: edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
     restart: always
-    links:
-      - l2jserver-mariadb
-      - l2jserver-login      
+    network_mode: "host"
     depends_on:
       - l2jserver-mariadb
       - l2jserver-login
     environment:
       JAVA_XMS: "512"
-      JAVA_XMX: "8192"
-      LOGIN_HOST: l2jserver-login
+      JAVA_XMX: "2048"
+      LOGIN_HOST: ${INSTALL_IPV4}
       LOGIN_PORT: "9014"
-      MARIADB_HOST: l2jserver-mariadb
+      MARIADB_HOST: ${INSTALL_IPV4}
       MARIADB_PORT: "3306"
-      MARIADB_DATABASE: "l2jgame"
+      MARIADB_DATABASE: "l2jbartz"
       MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: "w2nLmpNZfgBWWEVD"
+      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
       SERVER_ID: "1"
       SERVER_UPNP: "True"
       SERVER_BIND: "*"
@@ -143,9 +176,25 @@ services:
     healthcheck:
       test: healthcheck
       interval: 5s
-      timeout: 2s
+      timeout: 1s
       retries: 3
       start_period: 5s
     ports:
       - "7777:7777"
 EOF
+cat ${INSTALL_PATH}/docker-compose.yml
+build_log "############################################################" "INFO"
+# ---------------------------------------------------------------------------
+# Starting Up
+# ---------------------------------------------------------------------------
+build_log "Starting L2JServer with docker-compose" "INFO"
+build_log "############################################################" "INFO"
+docker-compose --file "docker-compose.yml" up -d
+build_log "############################################################" "INFO"
+# ---------------------------------------------------------------------------
+# Show Running Containers
+# ---------------------------------------------------------------------------
+build_log "Running containers" "INFO"
+build_log "############################################################" "INFO"
+docker ps
+build_log "############################################################" "INFO"
