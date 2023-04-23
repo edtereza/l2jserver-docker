@@ -25,14 +25,11 @@ build_log() {
 	echo "[$LOG_DATE $LOG_TIME] [$LOG_INFO] $LOG_TEXT"
 }
 # ---------------------------------------------------------------------------
-# Removing all docker images
+# Removing all unused docker content
 # ---------------------------------------------------------------------------
-build_log "Removing all containers and imagens" "INFO"
+build_log "Running docker system prune" "INFO"
 build_log "############################################################" "INFO"
-docker rm --force $(docker ps --format "{{.ID}}")
-build_log "############################################################" "INFO"
-docker rmi --force $(docker image list --format "{{.ID}}")
-build_log "############################################################" "INFO"
+printf 'y' | docker system prune
 # ---------------------------------------------------------------------------
 # Manage binfmt dependences
 # ---------------------------------------------------------------------------
@@ -79,122 +76,4 @@ build_log "############################################################" "INFO"
 # Back to main folder
 # ---------------------------------------------------------------------------
 cd ${INSTALL_PATH}
-# ---------------------------------------------------------------------------
-# Rebuild docker-compose.yml
-# ---------------------------------------------------------------------------
-build_log "Creating L2JServer docker-compose settings" "INFO"
-build_log "############################################################" "INFO"
-cat > ${INSTALL_PATH}/docker-compose.yml << EOF
-version: '3.4'
-services:
-  l2jserver-mariadb:
-    container_name: l2jserver-mariadb
-    image: edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB}
-    restart: always
-    cap_add:
-      - SYS_NICE
-    environment:
-      MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
-    healthcheck:
-      test: healthcheck
-      interval: 5s
-      timeout: 1s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./mariadb:/var/lib/mysql
-  l2jserver-login:
-    container_name: l2jserver-login
-    image: edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN}
-    restart: always
-    network_mode: "host"
-    depends_on:
-      - l2jserver-mariadb
-    environment:
-      JAVA_XMS: "128"
-      JAVA_XMX: "256"
-      MARIADB_HOST: ${INSTALL_IPV4}
-      MARIADB_PORT: "3306"
-      MARIADB_DATABASE: "l2jlogin"
-      MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
-      SERVER_UPNP: "True"
-      SERVER_BIND: "*"
-      SERVER_PORT: "2106"
-      SERVER_LISTEN_GAME_SERVER_BIND: "*"
-      SERVER_LISTEN_GAME_SERVER_PORT: "9014"
-      SERVER_LISTEN_GAME_SERVER_VERSIONS: "6, 14"
-      SERVER_LISTEN_GAME_SERVER_AUTO_ACCEPT: "True"
-      SERVER_LOGIN_LICENCE: "True"
-      SERVER_LOGIN_ALLOWED_IPS: "1"
-      SERVER_LOGIN_ATTEMPS_MAX: "5"
-      SERVER_LOGIN_ATTEMPS_BAN_SECONDS: "900"
-      SERVER_ACCOUNT_AUTO_CREATE: "False"
-      SERVER_ACCOUNT_AUTO_CREATE_LEVEL: "0"
-      SERVER_ACCOUNT_INACTIVE_ACCESS_LEVEL: "0"
-      SERVER_FLOOD_PROTECTION: "True"
-      SERVER_FLOOD_PROTECTION_FAST_CONNECTION_TIME: "350"
-      SERVER_FLOOD_PROTECTION_FAST_CONNECTION_LIMIT: "15"
-      SERVER_FLOOD_PROTECTION_NORMAL_CONNECTION_TIME: "700"
-      SYSADMIN_USERNAME: "l2jserver"
-      SYSADMIN_PASSWORD: "l2jserver"
-    healthcheck:
-      test: healthcheck
-      interval: 5s
-      timeout: 2s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "9014:9014"
-      - "2106:2106"
-  l2jserver-game:
-    container_name: l2jserver-game
-    image: edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
-    restart: always
-    network_mode: "host"
-    depends_on:
-      - l2jserver-mariadb
-      - l2jserver-login
-    environment:
-      JAVA_XMS: "512"
-      JAVA_XMX: "2048"
-      LOGIN_HOST: ${INSTALL_IPV4}
-      LOGIN_PORT: "9014"
-      MARIADB_HOST: ${INSTALL_IPV4}
-      MARIADB_PORT: "3306"
-      MARIADB_DATABASE: "l2jbartz"
-      MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
-      SERVER_ID: "1"
-      SERVER_UPNP: "True"
-      SERVER_BIND: "*"
-      SERVER_PORT: "7777"
-      SERVER_PLAYER_MAX: "500"
-    healthcheck:
-      test: healthcheck
-      interval: 5s
-      timeout: 1s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "7777:7777"
-EOF
-cat ${INSTALL_PATH}/docker-compose.yml
-build_log "############################################################" "INFO"
-# ---------------------------------------------------------------------------
-# Starting Up
-# ---------------------------------------------------------------------------
-build_log "Starting L2JServer with docker-compose" "INFO"
-build_log "############################################################" "INFO"
-docker-compose --file "docker-compose.yml" up -d
-build_log "############################################################" "INFO"
-# ---------------------------------------------------------------------------
-# Show Running Containers
-# ---------------------------------------------------------------------------
-build_log "Running containers" "INFO"
-build_log "############################################################" "INFO"
-docker ps
-build_log "############################################################" "INFO"
+./execute
