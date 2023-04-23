@@ -54,6 +54,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./mariadb:/var/lib/mysql
   l2jserver-login:
     container_name: l2jserver-login
@@ -99,6 +100,8 @@ services:
     ports:
       - "9014:9014"
       - "2106:2106"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
   l2jserver-game:
     container_name: l2jserver-game
     image: edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
@@ -131,6 +134,7 @@ services:
     ports:
       - "7777:7777"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./game/data:/opt/l2jserver/data
       - ./game/config:/opt/l2jserver/config
       - ./game/scripts:/opt/l2jserver/scripts

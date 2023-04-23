@@ -78,32 +78,21 @@ container_setup() {
     container_log "- Checking database structure" "INFO"
     if [ -d /var/lib/mysql/mysql ]; then
         container_log "- - Database structure already exists" "INFO"
-    else
-        container_log "- - Database structure not exists" "WARN"
-        container_log "- Initializing database structure" "INFO"
-        mysql_install_db --user=mysql --ldata=/var/lib/mysql > /dev/null
-        container_log "- - Database structure initialized" "INFO"
         #
-        MARIADB_PASSWORD_ROOT=`pwgen 16 1`
-        if [ -f "/var/lib/mysql/passwd" ]; then
-            MARIADB_PASSWORD_ROOT=$(cat /var/lib/mysql/passwd)
-        fi
-        export MARIADB_PASSWORD_ROOT=$MARIADB_PASSWORD_ROOT
-        container_log "- Initializing root password" "INFO"
-        container_log "- - root password.: ${MARIADB_PASSWORD_ROOT}" "INFO"
         tfile=`mktemp`
         if [ ! -f "$tfile" ]; then
             return 0
         fi
-        cat << EOF > $tfile
-USE mysql;
-FLUSH PRIVILEGES ;
-GRANT ALL ON *.* TO 'root'@'%' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
-GRANT ALL ON *.* TO 'root'@'localhost' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
-SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}') ;
-DROP DATABASE IF EXISTS test ;
-FLUSH PRIVILEGES ;
-EOF
+        MARIADB_PASSWORD_ROOT=$(cat /var/lib/mysql/passwd)
+        if [[ "$MARIADB_PASSWORD_ROOT" != "" ]];
+            then
+                container_log "- Installed root password" "INFO"
+                container_log "- - root password.: ${MARIADB_PASSWORD_ROOT}" "INFO"
+            fi
+        container_log "- Updating ${MARIADB_USERNAME} password" "INFO"
+        container_log "- - ${MARIADB_USERNAME} password.: ${MARIADB_PASSWORD}" "INFO"
+        container_log "############################################################" "INFO"
+        echo ''
         /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
         cat << EOF > $tfile
 USE mysql;
@@ -116,6 +105,59 @@ FLUSH PRIVILEGES ;
 EOF
         /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
         rm -f $tfile
+        echo ''
+        container_log "############################################################" "INFO"
+    else
+        container_log "- - Database structure not exists" "WARN"
+        container_log "- Initializing database structure" "INFO"
+        container_log "############################################################" "INFO"
+        echo ''
+        mysql_install_db --user=mysql --ldata=/var/lib/mysql > /dev/null
+        echo ''
+        container_log "############################################################" "INFO"
+        #
+        MARIADB_PASSWORD_ROOT=`pwgen 16 1`
+        if [ -f "/var/lib/mysql/passwd" ]; then
+            MARIADB_PASSWORD_ROOT=$(cat /var/lib/mysql/passwd)
+        fi
+        tfile=`mktemp`
+        if [ ! -f "$tfile" ]; then
+            return 0
+        fi
+        export MARIADB_PASSWORD_ROOT=$MARIADB_PASSWORD_ROOT
+        container_log "- Initializing root password" "INFO"
+        container_log "- - root password.: ${MARIADB_PASSWORD_ROOT}" "INFO"
+        container_log "############################################################" "INFO"
+        echo ''
+        cat << EOF > $tfile
+USE mysql;
+FLUSH PRIVILEGES ;
+GRANT ALL ON *.* TO 'root'@'%' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
+GRANT ALL ON *.* TO 'root'@'localhost' identified by '${MARIADB_PASSWORD_ROOT}' WITH GRANT OPTION ;
+SET PASSWORD FOR 'root'@'localhost'=PASSWORD('${MYSQL_ROOT_PASSWORD}') ;
+DROP DATABASE IF EXISTS test ;
+FLUSH PRIVILEGES ;
+EOF
+        echo ''
+        container_log "############################################################" "INFO"
+        container_log "- Initializing ${MARIADB_USERNAME} password" "INFO"
+        container_log "- - ${MARIADB_USERNAME} password.: ${MARIADB_PASSWORD}" "INFO"
+        container_log "############################################################" "INFO"
+        echo ''
+        /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
+        cat << EOF > $tfile
+USE mysql;
+FLUSH PRIVILEGES ;
+GRANT ALL ON *.* TO '${MARIADB_USERNAME}'@'%' identified by '${MARIADB_PASSWORD}' WITH GRANT OPTION ;
+GRANT ALL ON *.* TO '${MARIADB_USERNAME}'@'localhost' identified by '${MARIADB_PASSWORD}' WITH GRANT OPTION ;
+SET PASSWORD FOR '${MARIADB_USERNAME}'@'localhost'=PASSWORD('${MARIADB_PASSWORD}') ;
+DROP DATABASE IF EXISTS test ;
+FLUSH PRIVILEGES ;
+EOF
+        /usr/bin/mysqld --user=mysql --bootstrap --verbose=0 --skip-name-resolve --skip-networking=0 < $tfile
+        rm -f $tfile
+        echo ''
+        container_log "############################################################" "INFO"
     fi
 	chown -R mysql:mysql /var/lib/mysql
     #
@@ -141,9 +183,11 @@ if [[ $CONTAINER_SETUP_CHECK -eq 0 ]];
 	fi
 #
 container_log "##########################################################################################" "INFO"
+echo ''
 #
 exec /usr/bin/mysqld --user=mysql --console --skip-name-resolve --skip-networking=0 $@
 #
+echo ''
 container_log "##########################################################################################" "INFO"
 #
 exit 0
