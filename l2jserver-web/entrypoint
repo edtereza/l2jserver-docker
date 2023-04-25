@@ -23,7 +23,6 @@ container_copyright() {
 # ---------------------------------------------------------------------------
 container_trap() {
     /usr/sbin/nginx -c /etc/nginx/nginx.conf -s stop
-    kill $(ps aux | grep nginx | grep nginx.conf | grep master | awk '{print $1}')
     kill $(ps aux | grep php-fpm | grep php-fpm.conf | grep master | awk '{print $1}')
 }
 trap container_trap SIGINT SIGTERM
@@ -274,8 +273,7 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 #
 container_log "##########################################################################################" "INFO"
 #
-mkdir --parent /run/php
-mkdir --parent /run/nginx
+chown www:www /run/php -R
 chown www:www $PATH_SHARED_WWW -R
 /usr/sbin/nginx -t -c /etc/nginx/nginx.conf
 /usr/sbin/nginx -c /etc/nginx/nginx.conf
