@@ -2,14 +2,11 @@
 # ---------------------------------------------------------------------------
 # Script Path
 # ---------------------------------------------------------------------------
-INSTALL_IPV4=$(hostname -I | awk '{print $1}')
 INSTALL_PATH=$( cd "$( dirname "$0" )" && pwd )
-INSTALL_PASSWORD=$(pvs -o uuid | awk 'NR==2 {print; exit}' | sed "s/-//g")
-INSTALL_PASSWORD=${INSTALL_PASSWORD:1:16}
 # ---------------------------------------------------------------------------
 # Image Versions
 # ---------------------------------------------------------------------------
-DOCKER_IMAGE_VERSION_API="1.0.0.0"
+DOCKER_IMAGE_VERSION_WEB="1.0.0.0"
 DOCKER_IMAGE_VERSION_GAME="2.6.3.0"
 DOCKER_IMAGE_VERSION_LOGIN="2.6.6.0"
 DOCKER_IMAGE_VERSION_MARIADB="10.6.12"
@@ -25,34 +22,37 @@ build_log() {
 	echo "[$LOG_DATE $LOG_TIME] [$LOG_INFO] $LOG_TEXT"
 }
 # ---------------------------------------------------------------------------
-# Removing all unused docker content
+# Manage Dependences
 # ---------------------------------------------------------------------------
-build_log "Running docker system prune" "INFO"
-build_log "############################################################" "INFO"
-printf 'y' | docker system prune
-build_log "############################################################" "INFO"
-# ---------------------------------------------------------------------------
-# Manage binfmt dependences
-# ---------------------------------------------------------------------------
-build_log "Managind binfmt dependences" "INFO"
+build_log "Dependences" "INFO"
+build_log "- binfmt-support packet" "INFO"
 build_log "############################################################" "INFO"
 apt install -y binfmt-support;
 build_log "############################################################" "INFO"
+build_log "- multiarch/qemu-user-static container" "INFO"
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes;
 build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Creating docker build enviroment
 # ---------------------------------------------------------------------------
-build_log "Creating docker buildx enviroment" "INFO"
-build_log "############################################################" "INFO"
-docker buildx create --name l2jserver && docker buildx use l2jserver;
+DOCKER_CHECK_BUILDER_INSTANCE=$(docker buildx ls | grep lineage | grep docker-container)
+if [[ "$DOCKER_CHECK_BUILDER_INSTANCE" == "" ]];
+    then
+        build_log "Creating docker buildx enviroment" "INFO"
+        build_log "############################################################" "INFO"
+        docker buildx create --name lineage
+        build_log "############################################################" "INFO"
+    fi
+docker buildx use l2jserver;    
+#
+build_log "Inspect docker buildx enviroment" "INFO"
 build_log "############################################################" "INFO"
 docker buildx inspect --bootstrap;
 build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer MariaDB
 # ---------------------------------------------------------------------------
-build_log "Building L2JServer MariaDB Container" "INFO"
+build_log "Building MariaDB Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-mariadb;
 docker build --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
@@ -60,7 +60,7 @@ build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer Login
 # ---------------------------------------------------------------------------
-build_log "Building L2JServer Login Server Container" "INFO"
+build_log "Building Login Server Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-login;
 docker build --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
@@ -68,10 +68,25 @@ build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Building L2JServer Game
 # ---------------------------------------------------------------------------
-build_log "Building L2JServer Game Server Container" "INFO"
+build_log "Building Game Server Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-game;
 docker build --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
+build_log "############################################################" "INFO"
+# ---------------------------------------------------------------------------
+# Building L2JServer Web
+# ---------------------------------------------------------------------------
+build_log "Building Web Server Container" "INFO"
+build_log "############################################################" "INFO"
+cd ${INSTALL_PATH}/l2jserver-web;
+docker build --tag edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB} --load .
+build_log "############################################################" "INFO"
+# ---------------------------------------------------------------------------
+# Removing all unused docker content
+# ---------------------------------------------------------------------------
+build_log "Running docker system prune" "INFO"
+build_log "############################################################" "INFO"
+printf 'y' | docker system prune
 build_log "############################################################" "INFO"
 # ---------------------------------------------------------------------------
 # Back to main folder

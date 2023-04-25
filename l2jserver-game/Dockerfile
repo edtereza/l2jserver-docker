@@ -27,7 +27,7 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 #
 # Dependences
 #
-RUN apk update && apk --no-cache add git maven mariadb-client unzip cracklib openjdk17-jdk && \
+RUN apk update && apk --no-cache add tzdata git maven mariadb-client unzip cracklib openjdk17-jdk && \
     mkdir -p "$PATH_SOURCE"
 #
 # L2J Game Server    

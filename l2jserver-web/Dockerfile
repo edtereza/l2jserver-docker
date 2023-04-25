@@ -24,8 +24,8 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 #
 # Dependences
 #
-RUN apk add --no-cache  --repository http://dl-cdn.alpinelinux.org/alpine/edge/community php && \
-    apk update && apk --no-cache add git unzip zip tzdata nginx php8-fpm php8-pecl-mcrypt php8-soap php8-openssl php8-gmp php8-pdo_odbc php8-json php8-dom php8-pdo php8-zip php8-mysqli php8-sqlite3 php8-apcu php8-pdo_pgsql php8-bcmath php8-gd php8-odbc php8-pdo_mysql php8-pdo_sqlite php8-gettext php8-xmlreader php8-bz2 php8-iconv php8-pdo_dblib php8-curl php8-ctype && \
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community php && \
+    apk update && apk --no-cache add tzdata git unzip zip nginx php8-fpm php8-pecl-mcrypt php8-soap php8-openssl php8-gmp php8-pdo_odbc php8-json php8-dom php8-pdo php8-zip php8-mysqli php8-sqlite3 php8-apcu php8-pdo_pgsql php8-bcmath php8-gd php8-odbc php8-pdo_mysql php8-pdo_sqlite php8-gettext php8-xmlreader php8-bz2 php8-iconv php8-pdo_dblib php8-curl php8-ctype && \
     adduser -D -g 'www' www  && \
     mkdir -p /run/php
 #
@@ -57,4 +57,5 @@ EXPOSE 80
 # Workdir and Entrypoint (container startup)
 #
 WORKDIR /etc/nginx
+ENTRYPOINT ["tail", "-f", "/dev/null"]
 ENTRYPOINT entrypoint
