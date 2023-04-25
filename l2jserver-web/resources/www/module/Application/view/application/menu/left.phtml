@@ -1,0 +1,71 @@
+<div class="panel-header">
+	<div class="user-info">
+		<img class="img-circle user-photo" src="data:<?php echo $Person['photo']['mimetype']?>;base64,<?php echo $Person['photo']['data']?>" width="auto" height="75" alt="<?php echo $Person['name']?>" />
+		<div class="user-name"><?php echo $Person['nickname']?></div>
+	</div>
+</div>
+<div class="list-block no-hairlines no-hairlines-between">
+	<ul>
+		<li style="border-bottom: 1px solid #c4c4c4;">
+			<a href="<?php echo $this->url('home')?>" class="item-link close-panel" style="text-decoration: none;">
+				<div class="item-content">
+					<div class="item-media">
+						<i class="material-icons color-reebok">perm_identity</i>
+					</div>
+					<div class="item-inner">
+						<div class="item-title">Meu Perfil</div>
+					</div>
+				</div>
+			</a>
+		</li>
+		<li style="border-bottom: 1px solid #c4c4c4;">
+			<a href="<?php echo $this->url('home')?>" class="item-link close-panel" style="text-decoration: none;">
+				<div class="item-content">
+					<div class="item-media">
+						<i class="material-icons color-reebok">assessment</i>
+					</div>
+					<div class="item-inner">
+						<div class="item-title">Gestão de Operações</div>
+					</div>
+				</div>
+			</a>
+		</li>
+		<li style="border-bottom: 1px solid #c4c4c4;">
+			<a href="<?php echo $this->url('home')?>" class="item-link close-panel" style="text-decoration: none;">
+				<div class="item-content">
+					<div class="item-media">
+						<i class="material-icons color-reebok">sports</i>
+					</div>
+					<div class="item-inner">
+						<div class="item-title">Gestão de Aulas</div>
+					</div>
+				</div>
+			</a>
+		</li>
+		<li style="border-bottom: 1px solid #c4c4c4;">
+			<a href="<?php echo $this->url('home')?>" class="item-link close-panel" style="text-decoration: none;">
+				<div class="item-content">
+					<div class="item-media">
+						<i class="material-icons color-reebok">devices</i>
+					</div>
+					<div class="item-inner">
+						<div class="item-title">Dispositivos</div>
+					</div>
+				</div>
+			</a>
+		</li>
+
+		<li style="border-bottom: 1px solid #c4c4c4;">
+			<a href="<?php echo $this->url('logout')?>" class="item-link close-panel" style="text-decoration: none;">
+				<div class="item-content">
+					<div class="item-media" style="text-align: center;">
+						<i class="material-icons color-reebok">settings_power</i>
+					</div>
+					<div class="item-inner">
+						<div class="item-title">Sair</div>
+					</div>
+				</div>
+			</a>
+		</li>
+	</ul>
+</div>

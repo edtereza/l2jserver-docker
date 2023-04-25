@@ -1,0 +1,35 @@
+<?php
+    if ($Person !== null) {
+?>
+<div data-page="expired" class="page no-navbar">
+	<div class="page-content">
+		<div class="container">
+			<div class="title">Sessão Expirada</div>
+			<div class="media">
+				<img src="<?php echo $this->basePath("/assets/custom/delta/256x256.png")?>" alt="Reebok Sports Club"/>
+			</div>
+			<div class="message">
+				<b><?php echo $Person['nickname']?></b><br />Sua sessão se encontra encerrada, em instantes você será <?php echo ($Person['gender'] == 'F' ? 'redirecionada' : 'redirecionado')?> para a tela de login.
+			</div>
+		</div>
+	</div>
+</div>
+<?php
+    } else {
+?>
+<div data-page="expired" class="page no-navbar">
+	<div class="page-content">
+		<div class="container">
+			<div class="title">Sessão Encerrada</div>
+			<div class="media">
+				<img src="<?php echo $this->basePath("/assets/custom/delta/256x256.png")?>" alt="Reebok Sports Club"/>
+			</div>
+			<div class="message">
+				Sua sessão se encontra expirada, em instantes você retornará a tela de login.
+			</div>
+		</div>
+	</div>
+</div>
+<?php
+    }
+?>

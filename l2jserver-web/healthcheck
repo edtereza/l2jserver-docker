@@ -1,0 +1,20 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# Script Path
+# ---------------------------------------------------------------------------
+SCRIPT_PATH="/opt/l2jserver"
+# ---------------------------------------------------------------------------
+# Query Check
+# ---------------------------------------------------------------------------
+if [[ -f "$SCRIPT_PATH/config/restart" ]];
+    then
+        rm -f "$SCRIPT_PATH/config/restart"
+        kill $(ps aux | grep java | grep '.jar' | awk '{print $1}')
+    else
+        IS_READY=$(ps aux | grep java | grep '.jar' | awk '{print $2}')
+        if [[ "$IS_READY" == "root" ]];
+            then
+                exit 0
+            fi
+    fi
+exit 1

@@ -1,0 +1,66 @@
+<div data-page="lgpd-biometric" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-off back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">CONSENTIMENTO PARA TRATAMENTO DE DADOS BIOMÉTRICOS</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 800px; margin: auto; padding: 10px;">
+<?php 
+    if ($Profile !== null) {
+?>
+    		<div class="profile-header">
+    			<img class="profile-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    			<div class="profile-name"><?php echo $Profile['name']?></div>
+    		</div>
+<?php 
+    } else {
+?>
+    		<div class="profile-header">
+    			<img src="<?php echo  $this->basePath()?>/assets/custom/img/delta/256x256.png" style="border: 0px"/>
+    			<div class="profile-name">Reebok Sports Club</div>
+    		</div>
+<?php 
+    }
+?>
+    		<div class="content-block">
+    			<p style="text-align: justify; font-size: 24px;">
+    				A fim de oferecer agilidade e segurança àqueles que ingressam em nossos estabelecimentos e sem deixar de assegurar que o tratamento adequado de seus dados pessoais, a <b>MM Global Gym Ltda.</b>, inscrita no CNPJ/MF nº 03.602.928/0001-34 e a <b>MM Sports Club Eventos Esportivos Ltda.</b>, inscrita no CNPJ/MF nº 12.979.298/0001-02, doravante denominadas “Empresa”, solicitam o seu consentimento nos termos dispostos a seguir e detalhados no <b>TERMO DE COLETA DE CONSENTIMENTO ANEXO</b>.
+                </p>
+    		</div>
+    		<div class="card">
+    			<div class="card-content">
+    				<div class="card-content-inner">
+    					<p style="text-align: justify; font-size: 24px;">
+    						Ao permitir que a <b>Reebok Sports Club</b> proceda com o tratamento de todos os seus dados biométricos, digital e facial, nós poderemos lhe identificar para acesso à academia, validar seu ticket de estacionamento, oferecer o serviço de locação de toalhas e aferir a sua temperatura.
+    					</p>
+    					<p style="text-align: justify; font-size: 24px;">
+    						CASO VOCÊ NÃO ACEITE ESSA OPÇÃO OU SOLICITE O TRATAMENTO DE FORMA ISOLADA, VOCÊ DEVERÁ EMPREGAR O QRCODE DO NOSSO APLICATIVO SEMPRE QUE FOR UTILIZAR OS SERVIÇOS APLICÁVEIS.
+    					</p>
+    				</div>
+    			</div>
+    		</div>
+		</div>
+	</div>
+	<div class="toolbar toolbar-bottom">
+        <div class="toolbar-inner">
+<?php 
+    if ($Profile !== null) {
+?>
+			<a href="#" class="button button-fill button-all button-confirm color-green" data-request="<?php echo $this->url('totem/lgpd/biometric')?>" data-method="POST">PERMITIR TODOS</a>
+<?php 
+    } else {
+?>
+			<a href="<?php echo $this->url('totem/lgpd/authenticate')?>" class="button button-fill button-all color-green">PERMITIR TODOS</a>
+<?php 
+    }
+?>
+			<a href="<?php echo $this->url('totem/lgpd/biometric/settings')?>" class="button button-fill button-config color-reebok">CONFIGURAR</a>
+		</div>
+	</div>
+</div>

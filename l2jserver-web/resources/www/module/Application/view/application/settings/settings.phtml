@@ -1,0 +1,114 @@
+<div data-page="settings" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Configurações</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 500px; margin: auto;">
+			<div class="list-block">
+				<ul>
+    				<li>
+    					<a href="<?php echo $this->url('settings/profile')?>" class="item-link" style="text-decoration: none;">
+    						<div class="item-content">
+    							<div class="item-media">
+    								<img class="user-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    							</div>
+    							<div class="item-inner">
+    								<div class="item-title-row">
+    									<div class="item-title"><?php echo $Profile['name']?></div>
+    									<div class="item-subtitle"><?php echo $Profile['email'] ?></div>
+    								</div>
+    							</div>
+    							
+    						</div>
+    					</a>
+    				</li> 
+				</ul>
+			</div>
+			<div class="content-block-title">MINHA REEBOK</div>
+			<div class="list-block">
+     			<ul>
+    				<li>
+    					<a href="<?php echo $this->url('settings/plan')?>" class="item-link" style="text-decoration: none;">
+    						<div class="item-content">
+    							<div class="item-media">
+    								<i class="material-icons color-reebok">receipt</i>
+    							</div>
+    							<div class="item-inner">
+    								<div class="item-title">Plano</div>
+    							</div>
+    						</div>
+    					</a>
+    				</li>
+    			</ul>
+			</div>
+			<div class="content-block-title">CONFIGURAÇÕES DE PRIVACIDADE</div>
+			<div class="list-block">
+     			<ul>
+    				<li>
+    					<a href="<?php echo $this->url('settings/biometric')?>" class="item-link" style="text-decoration: none;">
+    						<div class="item-content">
+    							<div class="item-media">
+    								<i class="material-icons color-reebok">fingerprint</i>
+    							</div>
+    							<div class="item-inner">
+    								<div class="item-title">Biometria</div>
+    							</div>
+    						</div>
+    					</a>
+    				</li>
+    				<li>
+    					<a href="<?php echo $this->url('settings/notification')?>" class="item-link" style="text-decoration: none;">
+    						<div class="item-content">
+    							<div class="item-media">
+    								<i class="material-icons color-reebok">circle_notifications</i>
+    							</div>
+    							<div class="item-inner">
+    								<div class="item-title">Anamnese</div>
+    							</div>
+    						</div>
+    					</a>
+    				</li>
+    			</ul>
+			</div>
+			<div class="content-block-title">INFORMAÇÕES LEGAIS</div>
+			<div class="list-block">
+				<ul>
+					<li>
+            			<a id="terms" href="#" class="item-link" style="text-decoration: none;">
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Termos de Uso</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            		<li>
+            			<a id="policy-privacy" href="#" class="item-link" style="text-decoration: none;">
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Politica de Privacidade</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            		<li>
+            			<a id="policy-booking" href="#" class="item-link" style="text-decoration: none;">
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Politica de Reservas</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            	</ul>
+            </div>
+		</div>
+	</div>
+</div>

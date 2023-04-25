@@ -1,0 +1,47 @@
+<div class="data-table data-table-init card">
+	<div class="card-content">
+		<table>
+			<thead>
+				<tr> 
+					<th class="label-cell" style="font-weight: bold;">Modalidade</th>
+					<th class="numeric-cell" style="text-align: center; font-weight: bold;">% Meta</th>
+					<th class="numeric-cell" style="text-align: center; font-weight: bold;">NPS</th>
+				</tr>
+			</thead>
+			<tbody>
+<?php
+    if ($Dataset['records']  != null){
+        foreach($Dataset['records'] as $Record) {
+            $ColorimetricaNPS = '';
+            $ColorimetricaNPS = $Record['nps']['rate'] < 35 ? 'colorimetrica-inferior' : ($Record['nps']['rate'] > 75 ? 'colorimetrica-superior' : 'colorimetrica-mediana');
+            $ColorimetricaPresenca = '';
+            $ColorimetricaPresenca = $Record['presence']['rate'] < 35 ? 'colorimetrica-inferior' : ($Record['presence']['rate'] > 75 ? 'colorimetrica-superior' : 'colorimetrica-mediana');
+            ?>
+    			<tr>
+					<td class="label-cell">
+						<a href="<?php echo $this->url('management/technique/n1/area',['area'=>$Record['area']['dbid']])?>" class="item-link close-panel" style="text-decoration: none;">
+    						<div style="height: 30px; padding-top: 5px; font-weight: bold;">
+    							<?php echo $Record['area']['name']?>
+    						</div>
+						</a>
+					</td>
+					<td class="numeric-cell" style="text-align: center; vertical-align: middle;">
+						<div class="<?php echo $ColorimetricaPresenca?> open-popup" data-area-type="presence" data-area-dbid="<?php echo $Record['area']['dbid']?>" data-area-name="<?php echo $Record['area']['name']?>" data-popup=".management-technique-n1-home-popup-presence" style="height: 30px; padding-top: 5px; font-weight: bold;">
+							<?php echo $Record['presence']['rate']?>%
+						</div>
+					</td>
+					<td class="numeric-cell" style="text-align: center; vertical-align: middle;">
+						<div class="<?php echo $ColorimetricaNPS?> open-popup" data-area-type="nps" data-area-dbid="<?php echo $Record['area']['dbid']?>" data-area-name="<?php echo $Record['area']['name']?>" data-popup=".management-technique-n1-home-popup-nps" style="height: 30px; padding-top: 5px; font-weight: bold;">
+							<?php echo $Record['nps']['rate']?>%
+						</div>
+					</td>
+				</tr>
+<?php 
+        }
+    }
+?>    						
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="graph"></div>

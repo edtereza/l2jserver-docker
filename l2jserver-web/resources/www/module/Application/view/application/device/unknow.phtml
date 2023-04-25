@@ -1,0 +1,16 @@
+<div data-page="device-unknow" class="page no-navbar">
+	<div class="page-content">
+		<div class="device-unknow-container">
+			<div class="device-unknow-title">atenção</div>
+			<div class="device-unknow-media">
+				<img src="assets/custom/img/device/unknow.png" alt="Dispositivo Desconhecido" />
+			</div>
+			<div class="device-unknow-message">
+				<?php echo isset($Device['details']) ? $Device['details'] : "Este local não esta habilitado a acessar este sistema."?>
+			</div>
+			<div class="device-unknow-goback">
+				<a href="<?php echo $this->url('home')?>" class="item-link btn btn-reebok btn-confirm" style="text-decoration: none; color: #ffffff;">TENTAR NOVAMENTE</a>			
+			</div>
+		</div>
+	</div>
+</div>

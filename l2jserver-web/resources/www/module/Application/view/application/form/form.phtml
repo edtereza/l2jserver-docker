@@ -1,0 +1,63 @@
+<div data-page="form" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="center" style="font-variant: small-caps; margin-left: 10px;"><?php echo $Form['title']?></div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 800px; margin: auto; padding: 10px;">
+    		<div class="profile-header">
+    			<img class="profile-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    			<div class="profile-name"><?php echo $Profile['name']?></div>
+    		</div>
+    		<div class="content-block">
+<?php foreach($Form['descriptive'] as $Descriptive) { ?>
+    			<p style="text-align: justify; font-size: 14px;">
+    				<?php echo $Descriptive?>
+                </p>
+<?php } ?>
+    		</div>
+		</div>
+		<div style="max-width: 800px; margin: auto; padding: 10px; margin-bottom: 80px;">
+<?php
+    $Index = 0;
+    foreach($Form['fields'] as $Fields) {
+        $Index++; 
+?>
+    		<div class="list-field list-field_<?php echo $Index?> content-block-title" style="font-size: 16px; line-height: 20px;" data-field="<?php echo $Fields['dbid']?>"><?php echo $Fields['name']?></div>
+    		<div class="list-block">
+    			<ul>
+<?php 
+        //:: Verificando se é opções ou botão de opções
+        if ($Fields['type']['dbid'] == 2) {
+            foreach($Fields['options'] as $Options) {
+?>
+    				<li>
+    					<label class="label-radio item-content">
+    						<input id="option_<?php echo $Index?>" name="option_<?php echo $Index?>" type="radio" name="radio" value="<?php echo $Options['value']?>">
+    						<span class="item-media">
+    							<i class="icon icon-form-radio"></i>
+    						</span>
+    						<span class="item-inner">
+    							<span class="item-title" style="font-size: 14px;"><?php echo $Options['field']?></span>
+    						</span>
+    					</label>
+    				</li>
+<?php 
+            }
+        }
+?>
+    			</ul>
+    		</div>
+<?php 
+    }
+?>
+		</div>
+	</div>
+	<div class="toolbar toolbar-bottom">
+        <div class="toolbar-inner">
+			<a href="#" class="button button-fill button-all button-confirm color-green" data-form="<?php echo $Form['dbid']?>" data-request="<?php echo $this->url('form')?>" data-method="POST">ENVIAR RESPOSTAS</a>
+			<a href="<?php echo $this->url('logout')?>" class="button button-fill button-config color-reebok">CANCELAR</a>
+		</div>
+	</div>
+</div>

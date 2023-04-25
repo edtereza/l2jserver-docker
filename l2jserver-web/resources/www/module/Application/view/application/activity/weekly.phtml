@@ -1,0 +1,262 @@
+<?php 
+
+    if ($Activity !== null) {
+        
+        $ActivityTabFirst = null;
+        $ActivityTabActive = null;
+        $ActivityTabToolbar = [];
+        $ActivityTabContent = [];
+        foreach($Activity['records'] as $ActivityRow) {
+            $ActivityDate = $ActivityRow['date'];
+            $ActivityDay =  date("d",strtotime($ActivityRow['date']));
+            $ActivityWeekday = date("w",strtotime($ActivityRow['date'])) + 1;
+            $ActivityWeekdayFull = null;
+            switch ($ActivityWeekday) 
+            {
+                case 1:
+                    $ActivityWeekday = "DOM";
+                    $ActivityWeekdayFull = 'Domingo';
+                    break;
+                case 2:
+                    $ActivityWeekday = "SEG";
+                    $ActivityWeekdayFull = 'Segunda-Feira';
+                    break;
+                case 3:
+                    $ActivityWeekday = "TER";
+                    $ActivityWeekdayFull = 'Terça-Feira';
+                    break;
+                case 4:
+                    $ActivityWeekday = "QUA";
+                    $ActivityWeekdayFull = 'Quarta-Feira';
+                    break;
+                case 5:
+                    $ActivityWeekday = "QUI";
+                    $ActivityWeekdayFull = 'Quinta-Feira';
+                    break;
+                case 6:
+                    $ActivityWeekday = "SEX";
+                    $ActivityWeekdayFull = 'Sexta-Feira';
+                    break;
+                case 7:
+                    $ActivityWeekday = "SAB";
+                    $ActivityWeekdayFull = 'Sábado';
+                    break;
+            }
+            if (!isset($ActivityTabToolbar[$ActivityDate])){
+                if ($ActivityTabFirst == null)
+                    $ActivityTabFirst = $ActivityDate;
+                if ($Opened !== null && $Opened == $ActivityDate)
+                    $ActivityTabActive = $ActivityDate;
+                $ActivityTabToolbar[$ActivityDate] = [
+                    'id' => 'tab-'.$ActivityDate,
+                    'date' => $ActivityDate,
+                    'href' => '#tab-'.$ActivityDate,
+                    'name' => $ActivityWeekday . '<br/>' . $ActivityDay,
+                    'width' => null,
+                    'active' => ($ActivityTabActive == $ActivityDate ? true : false),
+                    'weekday' => [
+                        'small' => $ActivityWeekday,
+                        'full' => $ActivityWeekdayFull
+                    ],
+                ];
+            }
+            if (!isset($ActivityTabContent[$ActivityDate])) {
+                $ActivityTabContent[$ActivityDate] = [];
+            }
+            $ActivityTabContent[$ActivityDate][] = $ActivityRow;
+        }
+        if ($ActivityTabActive == null)
+            $ActivityTabToolbar[$ActivityTabFirst]['active'] = true;
+        foreach($ActivityTabToolbar as $ActivityTabToolbarEntry) {
+            $ActivityTabToolbar[$ActivityTabToolbarEntry['date']]['width'] = intval(100 / count($ActivityTabToolbar));
+        }
+    }
+?>
+<div data-page="activity-weekly" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" data-panel="left" class="link open-panel"> 
+					<i class="hamburger hamburger--elastic"> 
+    					<span class="hamburger-box">
+    						<span class="hamburger-inner"></span>
+    					</span>
+					</i>
+				</a>
+			</div>
+			<div class="center" style="text-align: center;">Grade de Aulas</div>
+		</div>
+	</div>
+	<div class="page-content pull-to-refresh-content">
+		<div class="pull-to-refresh-layer">
+            <div class="preloader"></div>
+			<div class="pull-to-refresh-arrow"></div>
+		</div>
+		<div class="coach-header">
+			<div class="coach-data">
+				<div class="coach-avatar">
+					<img class="coach-avatar img-circle" style="background-image: url('data:<?php echo $Person['photo']['mimetype']?>;base64,<?php echo $Person['photo']['data']?>')"/>
+				</div>
+			</div>
+			<div class="coach-name"><?php echo $Person['nickname']?></div>
+		</div>
+		<div class="toolbar tabbar tabbar-scrollable tabbar-inline">
+			<div class="toolbar-inner">
+<?php 
+    foreach($ActivityTabToolbar as $ActivityTabToolbarEntry) {
+        $onDateURL = $this->url('activity/on-date', [
+            'area' => $ActivityRow['area']['dbid'],
+            'class' => $ActivityRow['dbid'],
+            'year' => explode("-", $ActivityRow['date'])[0],
+            'month' => explode("-", $ActivityRow['date'])[1],
+            'day' => explode("-", $ActivityRow['date'])[2],
+            'hour' => explode(":", $ActivityRow['hour'])[0],
+            'minute' => explode(":", $ActivityRow['hour'])[1]
+        ]);
+?>
+		<a href="<?php echo $ActivityTabToolbarEntry['href']?>" class="tab-link<?php echo ($ActivityTabToolbarEntry['active'] == true ? ' active' : '')?>" style="width: <?php echo $ActivityTabToolbarEntry['width']?>%" data-request="<?php echo $onDateURL?>" data-date="<?php echo $ActivityTabToolbarEntry['date']?>" data-target="<?php echo $ActivityTabToolbarEntry['id']?>"><?php echo $ActivityTabToolbarEntry['name']?></a>
+<?php    
+    }
+?>
+			</div>
+		</div>
+		<div class="tabs">
+<?php 
+    foreach($ActivityTabToolbar as $ActivityTabToolbarEntry) {
+?>
+    		<div id="<?php echo $ActivityTabToolbarEntry['id']?>" class="tab<?php echo ($ActivityTabToolbarEntry['active'] == true ? ' active' : '')?>">
+    			<div style="max-width: 500px; margin: auto;">
+        			<div class="content-block" style="margin: 0px; padding: 0px;">
+        				<div class="list-block media-list no-hairlines no-hairlines-between">
+        					<ul class="activity-list">
+<?php
+    foreach ($ActivityTabContent[$ActivityTabToolbarEntry['date']] as $ActivityRow) {
+        $detail_Url = $this->url('activity/detail', [
+            'area' => $ActivityRow['area']['dbid'],
+            'class' => $ActivityRow['dbid'],
+            'year' => explode("-", $ActivityRow['date'])[0],
+            'month' => explode("-", $ActivityRow['date'])[1],
+            'day' => explode("-", $ActivityRow['date'])[2],
+            'hour' => explode(":", $ActivityRow['hour'])[0],
+            'minute' => explode(":", $ActivityRow['hour'])[1]
+        ]);
+        $timestamp_Agora = time();
+        $timestamp_Inicio = strtotime($ActivityRow['date'] . ' ' . $ActivityRow['hour']);
+        $timestamp_Termino = strtotime($ActivityRow['date'] . ' ' . $ActivityRow['hour']) + ($ActivityRow['duration'] * 60);
+        ?>
+        						<li>
+        							<div class="card activity">
+        								<div class="card-content">
+        									<div class="card-content-inner">
+        										<div class="item-content">
+        											<div class="item-media">
+        												<img class="coach-avatar img-circle" style="background-image: url('data:<?php echo $ActivityRow['coach']['photo']['mimetype']?>;base64,<?php echo $ActivityRow['coach']['photo']['data']?>')"/>
+        											</div>
+        											<div class="item-inner">
+        												<div class="item-title-row">
+        													<div class="item-title">
+        														<a href="<?php echo $detail_Url?>" style="text-decoration: none;">													
+        															<span><?php echo $ActivityRow['class']['name']?> <?php echo $ActivityRow['duration']?>"</span>
+        														</a>
+        													</div>
+        													<div class="item-after" style="margin-right: 8px;">
+        														<span class="item-schedule"><?php echo date("H:i",strtotime($ActivityRow['date'] . ' ' . $ActivityRow['hour']))?></span>
+        													</div>
+        												</div>
+        												<div class="item-title-row">
+        													<div class="item-subtitle">
+        														&raquo; <?php echo $ActivityRow['room']['location']['name'] ?><br/>
+        														&raquo; <?php echo $ActivityRow['room']['name'] ?><br/>
+                    										</div>
+<?php
+        if ($timestamp_Inicio > $timestamp_Agora && date('Y-m-d',$timestamp_Inicio) == date('Y-m-d',time())) {
+?>
+                    										<div class="item-after">
+        														<div class="chip chip-small color-amber">
+        															<div class="chip-label">
+        																<span class="item-schedule" date-begin="<?php echo $timestamp_Inicio?>" data-finish="<?php echo $timestamp_Termino?>">aula não iniciada</span>
+        															</div>
+        														</div>
+        													</div>
+            										
+<?php
+        } else if ($timestamp_Inicio <= $timestamp_Agora && $timestamp_Termino >= $timestamp_Agora) {
+            ?>
+                    										<div class="item-after">
+        														<div class="chip chip-small color-deeporange">
+        															<div class="chip-label">
+        																<span class="item-schedule" date-begin="">aula em andamento</span>
+        															</div>
+        														</div>
+        													</div>
+<?php
+        } else if ($timestamp_Termino < $timestamp_Agora and $ActivityRow['flags']['closed'] == false) {
+            ?>
+                    										<div class="item-after">
+        														<div class="chip chip-small color-indigo">
+        															<div class="chip-label">
+        																<span class="item-schedule" date-begin="">aula finalizada</span>
+        															</div>
+        														</div>
+        													</div>
+<?php
+        } else if ($timestamp_Termino < $timestamp_Agora and $ActivityRow['flags']['closed'] == true) {
+            ?>
+                    										<div class="item-after">
+        														<div class="chip chip-small color-green">
+        															<div class="chip-label">
+        																<span class="item-schedule" date-begin="">aula encerrada</span>
+        															</div>
+        														</div>
+        													</div>
+<?php
+        } else { }
+?>            										
+                    									</div>
+        											</div>
+        										</div>
+        									</div>
+        									<div class="card-footer">
+        										<div class="item-content">
+        											<div class="item-media">
+        												<i class="material-icons color-reebok">room</i>
+        											</div>
+        											<div class="item-inner">
+        												<div class="item-subtitle">Vagas</div>
+        												<div class="item-title"><?php echo $ActivityRow['total']['vacancy'] ?></div>
+        											</div>
+        										</div>
+        										<div class="item-content">
+        											<div class="item-media">
+        												<i class="material-icons color-reebok">where_to_vote</i>
+        											</div>
+        											<div class="item-inner">
+        												<div class="item-subtitle">Reservas</div>
+        												<div class="item-title"><?php echo $ActivityRow['total']['booked'] ?></div>
+        											</div>
+        										</div>        
+        										<div class="item-content">
+        											<div class="item-media">
+        												<i class="material-icons color-reebok">how_to_reg</i>
+        											</div>
+        											<div class="item-inner">
+        												<div class="item-subtitle">Presentes</div>
+        												<div class="item-title"><?php echo $ActivityRow['total']['presence'] ?></div>
+        											</div>
+        										</div>
+        									</div>
+        								</div>
+        							</div>
+        						</li>
+<?php } ?>
+        					</ul>
+        				</div>
+        			</div>
+        		</div>
+    		</div>
+<?php    
+    }
+?>
+		</div>
+	</div>
+</div>

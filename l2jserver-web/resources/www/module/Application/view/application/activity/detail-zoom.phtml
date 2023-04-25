@@ -1,0 +1,174 @@
+<?php
+    //:: Dia da semana
+    $Activity['weekday'] =  intval(date('w',strtotime($Activity['date'] . ' ' . $Activity['hour']))) + 1;
+    $Activity['weekday'] = ($Activity['weekday'] == 1 ? 'Domingo' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 2 ? 'Segunda-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 3 ? 'Terça-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 4 ? 'Quarta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 5 ? 'Quinta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 6 ? 'Sexta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 7 ? 'Sábado' :  $Activity['weekday']);
+    //:: Controle do timestamp
+    $timestamp_Agora = time();
+    $timestamp_Inicio = strtotime($Activity['date'] . ' ' . $Activity['hour']) - (10 * 60);
+    $timestamp_Termino = strtotime($Activity['date'] . ' ' . $Activity['hour']) + ($Activity['duration'] * 60);
+    //:: Localizando posição reservada
+    $bookedPosition = null;
+    $layoutPosition = null;
+    for($LayoutPositionY = $Activity['room']['layout']['size']['y']; $LayoutPositionY >= 1; $LayoutPositionY--){
+        for($LayoutPositionX = 1; $LayoutPositionX <= $Activity['room']['layout']['size']['x']; $LayoutPositionX++) {
+            for($LayoutRowIndex = 0; $LayoutRowIndex < count($Activity['room']['layout']['rows']); $LayoutRowIndex++){
+                if ($Activity['room']['layout']['rows'][$LayoutRowIndex]['position']['x'] == $LayoutPositionX && $Activity['room']['layout']['rows'][$LayoutRowIndex]['position']['y'] == $LayoutPositionY) {
+                    $layoutPosition = $Activity['room']['layout']['rows'][$LayoutRowIndex];
+                    break;
+                }
+            }
+            if ($layoutPosition['bookedBy'] != null && $layoutPosition['bookedBy']['dbid'] == $Person['dbid'])
+                $bookedPosition = $layoutPosition;
+        }
+    }
+?>
+<div data-page="activity-detail-live" class="page ">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Live Workout Reebok</div>
+		</div>
+	</div>
+	<div class="page-content pull-to-refresh-content">
+		<div class="pull-to-refresh-layer">
+            <div class="preloader color-reebok"></div>
+			<div class="pull-to-refresh-arrow"></div>
+		</div>
+		<div style="max-width: 500px; margin: auto; padding: 10px;">
+			<header class="header" style="padding-bottom: 10px; padding-top: 20px;">
+            	<img src="<?php echo $this->basePath('/assets/custom/logo/live/256x135.png')?>">
+            </header>
+			<header class="header" style="border-bottom: 1px solid #c4c4c4; padding-bottom: 10px;">
+            	<h1 class="title" style="margin: 0px; margin-top: 30px;"><?php echo $Activity['class']['name']?></h1>
+            </header>
+            <header class="header" style="border-bottom: 1px solid #c4c4c4; padding-bottom: 10px;">
+				<h5 class="title">
+					<small style="font-size: 50%; letter-spacing: 5px;">Prof. <?php echo $Activity['coach']['name']?> </small>
+				</h5>
+            </header>
+            <header class="header" style="white-space: nowrap; margin-top: 0px; padding-bottom: 10px; letter-spacing: 10px; margin-bottom: 5px;">
+            	<h5 class="title">
+            		<small style="font-size: 50%;"><?php echo $Activity['weekday']?></small>
+            		<br/>
+            		<small style="font-size: 50%; letter-spacing: 5px;"><?php echo date('d/m/Y',strtotime($Activity['date']))?> das <?php echo $Activity['hour']?> até <?php echo date('H:i', (strtotime($Activity['date'] . ' ' . $Activity['hour']) + ($Activity['duration'] * 60)))?> </small>
+            	</h5>
+            </header>
+<?php
+    // :: Verificando se a atifica
+    if ($timestamp_Agora < $timestamp_Inicio) {
+?>
+        	<header class="header" style="border-top: 1px solid #c4c4c4; border-bottom: 1px solid #c4c4c4;  padding-top: 5px; padding-bottom: 5px;">
+        		<h5 class="title">
+        			<small style="font-size: 50%;" style="letter-spacing: 1px;">A AULA IRÁ INICIAR EM</small>
+        		</h5>
+				<div class="countdown-timer" data-countdown="<?php echo date("Y-m-d H:i:s",$timestamp_Inicio)?>">
+    				<div class="time days">
+    					<div class="value">00</div>
+    					<div class="unit">DIAS</div>
+    				</div>
+    				<div class="time hours">
+    					<div class="value">00</div>
+    					<div class="unit">HORAS</div>
+    				</div>
+    				<div class="time minutes">
+    					<div class="value">00</div>
+    					<div class="unit">MINUTOS</div>
+    				</div>
+    				<div class="time seconds">
+    					<div class="value">00</div>
+    					<div class="unit">SEGUNDOS</div>
+    				</div>
+    			</div>
+			</header>
+<?php 
+    // :: Verificando se a atividade ainda não foi encerrada
+    } else if ($timestamp_Agora > $timestamp_Inicio && $timestamp_Agora < $timestamp_Termino) {
+        ?>
+        	<header class="header" style="border-top: 1px solid #c4c4c4; border-bottom: 1px solid #c4c4c4;  padding-top: 5px; padding-bottom: 5px;">
+        		<h5 class="title">
+                	<small style="font-size: 50%; letter-spacing: 1px;">TEMPO RESTANTE DA AULA</small>
+				</h5>
+				<div class="countdown-timer" data-countdown="<?php echo date("Y-m-d H:i:s",$timestamp_Termino)?>">
+    				<div class="time hours">
+    					<div class="value">00</div>
+    					<div class="unit">HORAS</div>
+    				</div>
+    				<div class="time minutes">
+    					<div class="value">00</div>
+    					<div class="unit">MINUTOS</div>
+    				</div>
+    				<div class="time seconds">
+    					<div class="value">00</div>
+    					<div class="unit">SEGUNDOS</div>
+    				</div>
+    			</div>
+			</header>
+<?php 
+    } else if ($timestamp_Agora > $timestamp_Termino) {
+?>
+            <p class="buttons-row" style="margin-top: 15px;">
+				<a href="#" class="button button-big button-fill button-raised button-round color-reebok">AULA ENCERRADA</a>
+			</p>
+<?php 
+
+    }
+    // :: Verificando se a atifica
+    if ($bookedPosition == null) {
+?>
+		    <p class="buttons-row" style="margin-top: 15px;">
+				<a href="#" class="button button-big button-fill button-raised button-round color-reebok button-reload">NÃO IDENTIFICAMOS SUA RESERVA NESTA AULA</a>
+			</p>
+			<div style="width:100%; text-align: center; padding: 15px;">
+				Para participar desta aula favor efetuar sua reserva no<br/><b>APP Reebok</b> e clique no botão acima.
+			</div>
+<?php
+    } else if ($bookedPosition != null && $timestamp_Agora < $timestamp_Inicio) {
+?>
+            <p class="buttons-row" style="margin-top: 15px;">
+				<a href="#" class="button button-big button-fill button-raised button-round color-reebok button-reload">A AULA SERÁ INICIADA EM BREVE</a>
+			</p>
+            <div style="width:100%; text-align: center; padding: 15px;">
+				Assim que a Live Reebok começar, você poderá iniciar seu treino!
+			</div>
+            
+<?php     
+    } else if ($bookedPosition != null && $timestamp_Agora > $timestamp_Inicio && $timestamp_Agora < $timestamp_Termino) {
+        $_urlMetting = $this->url('activity/detail/live/window', [
+            'area' => $Activity['area']['dbid'],
+            'class' => $Activity['dbid'],
+            'year' => explode("-", $Activity['date'])[0],
+            'month' => explode("-", $Activity['date'])[1],
+            'day' => explode("-", $Activity['date'])[2],
+            'hour' => explode(":", $Activity['hour'])[0],
+            'minute' => explode(":", $Activity['hour'])[1]
+        ]);
+?>
+			<p class="buttons-row">
+				<a href="#" class="button button-big button-fill button-raised button-round color-reebok button-window" data-request="<?php echo $_urlMetting?>" style="text-decoration: none;">INICIE SUA AULA AQUI</a>
+			</p>
+            <div style="width:100%; text-align: center; padding: 15px;">
+				Esta aula está sendo transmitida online<br/>e você pode acompanhar de onde estiver.
+			</div>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			
+<?php 
+    }
+?>
+		</div>
+	</div>
+</div>

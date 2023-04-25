@@ -1,0 +1,93 @@
+
+<div data-page="settings-biometric" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Configurações de Biometria</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 500px; margin: auto;">
+		
+			<div class="content-block-title">TRATAMENTO DE DADOS BIOMÉTRICOS</div>
+			<div class="list-block" style="margin: 5px;">
+     			<ul>
+    				<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-subtitle" style="white-space: normal; text-overflow: inherit; text-align: justify;">Ao permitir que a <b>Reebok Sports Club</b> proceda com o tratamento de todos os seus dados biométricos, digital e facial, nós poderemos lhe identificar para acesso à academia, validar seu ticket de estacionamento, oferecer o serviço de locação de toalhas e aferir a sua temperatura.</div>
+							</div>
+						</div>
+    				</li>
+            	</ul>
+            </div>
+
+			<div class="content-block" style="margin: 5px;">
+    			<div class="alert alert-info">
+    				<div class="alert-text" style="padding: 0px; text-align: justify;">CASO VOCÊ NÃO ACEITE ESSA OPÇÃO OU SOLICITE O TRATAMENTO DE FORMA ISOLADA, VOCÊ DEVERÁ EMPREGAR O QRCODE DO NOSSO APLICATIVO SEMPRE QUE FOR UTILIZAR OS SERVIÇOS APLICÁVEIS.</div>
+    			</div>
+    		</div>
+
+			<div class="content-block-title settings-biometric-global-on">CONFIGURAÇÕES DE TIPO DE DADOS</div>
+			<div class="list-block settings-biometric-global-on" style="margin: 5px;">
+     			<ul>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">fingerprint</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Digitais</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="fingerprint" name="fingerprint" value="1" type="checkbox"<?php echo ($Biometric['fingerprint'] == true ? " checked" : '')?> data-status="<?php echo ($Biometric['fingerprint'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-subtitle" style="white-space: normal; text-overflow: inherit; text-align: justify;">Ao permitir que a <b>Reebok Sports Club</b> proceda com o tratamento de sua biometria digital, nós poderemos lhe identificar para validar seu ticket de estacionamento e oferecer o serviço de locação de toalhas.</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">face</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Reconhecimento Facial</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="face_recognition" name="face_recognition" value="1" type="checkbox"<?php echo ($Biometric['face_recognition'] == true ? " checked" : '')?> data-status="<?php echo ($Biometric['face_recognition'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+						<div class="item-content">
+							<div class="item-inner">
+								<div class="item-subtitle" style="white-space: normal; text-overflow: inherit; text-align: justify;">Ao permitir que a <b>Reebok Sports Club</b> proceda com o tratamento de sua biometria facial, nós poderemos lhe identificar para acesso à academia e aferição de temperatura..</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<button id="submit" type="button" class="button button-big button-block button-fill color-reebok" data-request="<?php echo $this->url('settings/biometric')?>" data-method="POST">SALVAR PREFERÊNCIAS</button>
+							</div>
+						</div>
+    				</li>
+            	</ul>
+            </div>
+            
+            
+		</div>
+	</div>
+</div>

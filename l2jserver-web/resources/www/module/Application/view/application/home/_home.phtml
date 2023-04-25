@@ -1,0 +1,79 @@
+<?php
+$Nascimento = $Profile['birth'];
+$Nascimento = ($Nascimento != null ? explode('-', $Nascimento) : null);
+if ($Nascimento != null){
+    switch ($Nascimento[1]){
+        case 1:
+            $Nascimento[1] = 'Janeiro';
+            break;
+        case 2:
+            $Nascimento[1] = 'Fevereiro';
+            break;
+        case 3:
+            $Nascimento[1] = 'Março';
+            break;
+        case 4:
+            $Nascimento[1] = 'Abril';
+            break;
+        case 5:
+            $Nascimento[1] = 'Maio';
+            break;
+        case 6:
+            $Nascimento[1] = 'Junho';
+            break;
+        case 7:
+            $Nascimento[1] = 'Julho';
+            break;
+        case 8:
+            $Nascimento[1] = 'Agosto';
+            break;
+        case 9:
+            $Nascimento[1] = 'Setembro';
+            break;
+        case 10:
+            $Nascimento[1] = 'Outubro';
+            break;
+        case 11:
+            $Nascimento[1] = 'Novembro';
+            break;
+        case 12:
+            $Nascimento[1] = 'Dezembro';
+            break;
+    }
+}
+?>
+<div data-page="home" class="page no-navbar" style="font-wei: ">
+	<div class="page-content">
+		<div class="profile-header">
+			<div class="user-data">
+    			<div class="user-weight"><?php echo $Profile['weight']?> kg</div>
+    			<div class="user-avatar">
+    				<img class="user-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    			</div>
+    			<div class="user-height"><?php echo $Profile['height']?> cm</div>
+			</div>
+			<div class="user-name"><?php echo $Profile['nickname']?></div>			
+		</div>
+		<div style="max-width: 500px; margin: auto;">
+			<div class="content-block">
+    			<p>Cards are a convenient means of displaying content composed of different elements in an organized way.</p>
+    			<p>They serve as an entry point to more detailed information.</p>
+    			<p>Cards may contain a photo, text, and a link about a single subject.</p>
+    		</div>
+    		<div class="content-block">
+    			<div style="width: 50%; text-align: center; float: left;">
+    				<img class="apple-store" />
+    			</div>
+    			<div style="width: 50%; text-align: center; float: right;" >
+    				<img class="google-play" />
+    			</div>
+    		</div>
+    		
+		</div>
+	</div>
+	<div class="toolbar toolbar-bottom">
+        <div class="toolbar-inner">
+          <a href="<?php echo $this->url('logout')?>" class="button button-fill color-reebok">EFETUAR LOGOUT</a>
+       </div>
+	</div>
+</div>

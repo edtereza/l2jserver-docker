@@ -1,0 +1,187 @@
+/*
+|------------------------------------------------------------------------------
+| PopUp - QRCode
+|------------------------------------------------------------------------------
+*/
+
+.popup-qrcode .popup-block {
+	width: 100%;
+	height: calc(100% - 48px);
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin: 0px !important;
+}
+
+.popup-qrcode .qrcode-holder {
+	width: 300px;
+	height: 300px;
+	justify-content: center;
+	align-items: center;
+	padding: 0px;
+	margin: 0px;
+}
+
+.popup-qrcode .qrcode-image {
+	display: block;
+	margin: auto;
+	border: 0px;
+	height: 300px;
+	width: 300px;
+	margin-bottom: 15px;
+}
+
+.popup-qrcode .qrcode-message {
+	width: 300px;
+	height: 300px;
+	display: block;
+	margin: 0 auto;
+	height: auto;
+	text-align: center;
+	font-weight: bold;
+	color: #909090;
+	font-variant: small-caps;
+}
+
+
+
+/*
+|------------------------------------------------------------------------------
+| Side Panel
+|------------------------------------------------------------------------------
+*/
+
+.panel-left .list-block .item-link .item-inner {
+	background-image: none;
+}
+
+.panel-left .panel-header {
+	background-color: #B91817;
+	color: rgba(255, 255, 255, 0.87);
+	padding: 16px;
+}
+
+.panel-left .user-info {
+	text-align: center;
+}
+
+.panel-left .user-info .user-photo {
+	border: 2px solid #FFFFFF;
+}
+
+.panel-left .user-info .user-photo {
+	border: 2px solid #FFFFFF;
+	height: 70px;
+	width: 70px;
+	background-size: cover;       
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.panel-left .user-info .user-name {
+	margin-top: 10px;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+.panel-left .user-info .user-location {
+	font-size: 10px;
+	text-transform: uppercase;
+}
+
+.panel-left .user-info .user-location {
+	font-size: 10px;
+	text-transform: uppercase;
+}
+
+.panel-left .list-block {
+    margin: 0;
+    font-size: 16px;
+}
+
+/*
+|------------------------------------------------------------------------------
+| Scroll Bar
+|------------------------------------------------------------------------------
+*/
+
+*::-webkit-scrollbar {
+	height: 2px;
+	width: 3px;
+}
+
+*::-webkit-scrollbar-button {
+	height: 0px;
+	width: 0px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: #666666;
+	border: 0px none #FFFFFF;
+	border-radius: 50px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background: #444444;
+}
+
+*::-webkit-scrollbar-thumb:active {
+	background: #222222;
+}
+
+*::-webkit-scrollbar-track {
+	background: #EEEEEE;
+	border: 0px none #FFFFFF;
+	border-radius: 50px;
+}
+
+*::-webkit-scrollbar-track:hover {
+	background: #EEEEEE;
+}
+
+*::-webkit-scrollbar-track:active {
+	background: #EEEEEE;
+}
+
+*::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+
+/*
+|------------------------------------------------------------------------------
+| Countdown
+|------------------------------------------------------------------------------
+*/
+
+.countdown-header {
+	margin-bottom: 2px;
+	margin-top: 2px;
+	width: 100%;
+	text-align: center;
+}
+
+.countdown-timer {
+	margin-bottom: 2px;
+	margin-top: 2px;
+	width: 100%;
+	text-align: center;
+}
+
+.countdown-timer .time {
+	display: inline-block;
+	margin: 4px;
+	padding: 4px;
+	margin-top: 0px;
+	padding-top: 0px;
+}
+
+.countdown-timer .time .value {
+	font-size: 32px;
+	font-weight: bold;
+}
+
+.countdown-timer .time .unit {
+	font-size: 10px;
+}

@@ -1,0 +1,15 @@
+.tour-guide-popover {
+	border-radius: 0;
+}
+
+.tour-guide-popover .tour-guide-header-wrapper {
+	padding: 0 14px;
+}
+
+.tour-guide-popover .tour-guide-message-wrapper {
+	padding: 0 14px;
+}
+
+.tour-guide-popover .tour-guide-buttons-row {
+	width: 100%;
+}

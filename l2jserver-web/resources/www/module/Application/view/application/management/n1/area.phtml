@@ -1,0 +1,93 @@
+<div data-page="management-technique-n1-area" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Gestão de Operações <?php echo $Dataset['records'][0]['area']['name']?></div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div class="filter">
+        	<div class="list-block">
+            	<ul>
+            		<li>
+            			<a href="#" class="item-link smart-select smart-select-n1-filter-location" data-open-in="popup" data-searchbar="false" data-searchbar-placeholder="Localizar" data-searchbar-cancel="Cancelar">
+            				<select name="location">
+<?php 
+    foreach($Filter['Location']['records'] as $Location) {
+?>
+            					<option value="<?php echo $Location['dbid']?>" <?php echo $Filter['Location']['current'] == $Location['dbid'] ? 'selected="selected"' : ''?>><?php echo $Location['name']?></option>
+<?php 
+    }
+?>
+            				</select>
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Unidade</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            	</ul>
+            </div>
+            <div class="list-block">
+            	<ul>
+            		<li>
+            			<a href="#" class="item-link smart-select smart-select-n1-filter-class" data-open-in="popup" data-searchbar="true" data-searchbar-placeholder="Localizar" data-searchbar-cancel="Cancelar">
+            				<select name="class">
+            					<option value="0">Todas</option>
+<?php 
+    foreach($Filter['Class']['records'] as $Class) {
+?>
+            					<option value="<?php echo $Class['dbid']?>" <?php echo $Filter['Class']['current'] == $Class['dbid'] ? 'selected="selected"' : ''?>><?php echo $Class['name']?></option>
+<?php 
+    }
+?>
+            				</select>
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Aula</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            	</ul>
+            </div>
+            <div class="list-block">
+            	<ul>
+            		<li>
+            			<a href="#" class="item-link smart-select smart-select-n1-filter-date" data-open-in="popup" data-searchbar="true" data-searchbar-placeholder="Localizar" data-searchbar-cancel="Cancelar">
+            				<select name="date">
+<?php 
+    foreach($Filter['Date']['records'] as $Date) {
+        $Date['text'] = explode('-', $Date['date']) ;
+        $Date['text'] = $Date['text'][1] . '/' . $Date['text'][0];
+?>
+            					<option value="<?php echo $Date['date']?>" <?php echo $Filter['Date']['current'] == $Date['date'] ? 'selected="selected"' : ''?>><?php echo $Date['text']?></option>
+<?php 
+    }
+?>
+            				</select>
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Mês de Referência</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            	</ul>
+            </div>
+		</div>
+		<div class="data-holder" data-request-url="<?php echo $this->url('management/technique/n1/area/data',['area'=>$Dataset['records'][0]['area']['dbid']])?>" data-request-method="POST"></div>
+		<br/>
+		<br/>
+	</div>
+	<div class="toolbar toolbar-bottom">
+        <div class="toolbar-inner">
+          <a href="<?php echo $this->url('management/technique/n1/area/table',['area'=>$Dataset['records'][0]['area']['dbid']])?>" class="button button-fill color-white tem-link close-panel" >GESTÃO DE AULAS E PROFESSORES</a>
+       </div>
+	</div>
+</div>

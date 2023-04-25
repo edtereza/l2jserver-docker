@@ -1,0 +1,173 @@
+<div data-page="settings-plan" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Informações do Plano</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 500px; margin: auto;">
+			<div class="profile-header">
+    			<img class="profile-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    			<div class="profile-name"><?php echo $Profile['name']?></div>
+    		</div>
+			<div class="content-block-title"><?php echo strtoupper($Plan['name'])?></div>
+			<div class="list-block" style="margin: 5px;">
+     			<ul>
+     				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">today</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Situação</div>
+								<div class="item-after"><?php echo $Plan['status']['info']?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+    if ($Plan['agreement'] != null) {
+?>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">account_box</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Convênio</div>
+								<div class="item-after"><?php echo $Plan['agreement']['name']?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+    }
+?>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">today</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Iniciado em</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['begin_at']))?></div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+<?php 
+    $_planFinishIcon = 'event_busy';
+    if (strtotime($Plan['finish_at']) > strtotime(date('Y-m-d'))) {
+        $_planFinishIcon = 'date_range';
+        
+    } else if (strtotime($Plan['finish_at']) <= strtotime(date('Y-m-d'))) {
+        $_planFinishIcon = 'event_available';
+    }
+?>
+								<i class="material-icons color-reebok"><?php echo $_planFinishIcon?></i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Encerrando em</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['finish_at']))?></div>
+							</div>
+						</div>
+    				</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">favorite</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title"><?php echo ($Profile['gender'] == 'M' ? 'Aluno' : 'Aluna') ?> desde</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['since']))?></div>
+							</div>
+						</div>
+    				</li>
+            	</ul>
+            </div>
+<?php 
+   if ($Plan['complement']['P90'] != null) {
+?>
+            <div class="content-block-title">PROGRAMA 90 DIAS</div>
+			<div class="list-block" style="margin: 5px;">
+     			<ul>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">label</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Acessos</div>
+								<div class="item-after"><?php echo $Plan['complement']['P90']['days']?> de 36 (<?php echo $Plan['complement']['P90']['percentage']?>%)</div>
+							</div>
+						</div>
+    				</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">today</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Aderiu em</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['begin_at']))?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+        if ($Plan['complement']['P90']['in_progress'] == true) {
+?>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">date_range</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Limite para conclusão</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['finish_at']))?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+        } else if ($Plan['complement']['P90']['closed'] == true && $Plan['complement']['P90']['percentage'] == 100) {
+            ?>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">event_busy</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Concluído em</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['finish_at']))?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+        } else if ($Plan['complement']['P90']['closed'] == true && $Plan['complement']['P90']['percentage'] != 100) {
+            ?>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">event_busy</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Encerrado em</div>
+								<div class="item-after"><?php echo date('d/m/Y',strtotime($Plan['finish_at']))?></div>
+							</div>
+						</div>
+    				</li>
+<?php 
+        }
+?>
+            	</ul>
+            </div>
+<?php 
+   }
+?>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,15 @@
+{
+	"name": "Reebok Sports Club",
+	"version": "1.0.0",
+	"description": "API de acesso aos dados da intranet.",
+	"order": [
+		"Token",
+		"Authentication",
+		"Profile",
+		"Coach",
+		"Activity"
+	],
+	"template": {
+		"forceLanguage": "pt_br"
+	}
+}

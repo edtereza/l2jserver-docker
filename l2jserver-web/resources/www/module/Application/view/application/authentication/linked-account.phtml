@@ -1,0 +1,48 @@
+<div data-page="linked-account" class="page no-navbar">
+	<div class="page-content" style="max-width: 400px; margin: auto;">
+		<div class="content-block">
+			<img class="logo"
+				src="<?php echo $this->basePath('/assets/custom/logo/256x256.png')?>" />
+		</div>
+		<div class="content-block" style="margin: 0px; padding: 0px;">
+			<div class="list-block media-list no-hairlines no-hairlines-between">
+				<ul class="linked-account-list">
+<?php
+foreach ($LinkedAccount['records'] as $LinkedAccountRecord) {
+    $Years = date('Y',strtotime($LinkedAccountRecord['birth']));
+    $Years = date('Y') - $Years;
+    
+?>
+        			<li>
+						<div class="card" data-code="<?php echo $LinkedAccountRecord['dbid']?>" data-request="<?php echo $this->url('linked-account')?>" data-method="POST">
+							<div class="card-content">
+								<div class="card-content-inner">
+									<div class="item-content">
+										<div class="item-media" data-code="<?php echo $LinkedAccountRecord['dbid']?>">
+											<img class="linked-account-avatar img-circle" style="background-image: url('data:<?php echo $LinkedAccountRecord['photo']['mimetype']?>;base64,<?php echo $LinkedAccountRecord['photo']['data']?>')"/>
+										</div>
+										<div class="item-inner" data-code="<?php echo $LinkedAccountRecord['dbid']?>">
+											<div class="item-title-row">
+												<div class="item-title">
+													<?php echo $LinkedAccountRecord['name']?>
+												</div>
+											</div>
+											<div class="item-title-row">
+												<div class="item-subtitle">
+    												&raquo; <?php echo $LinkedAccountRecord['age'] ?><br />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</li>
+<?php
+}
+?>
+    			</ul>
+			</div>
+		</div>
+	</div>
+</div>

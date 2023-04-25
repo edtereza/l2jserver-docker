@@ -1,0 +1,16 @@
+<div data-page="device-disabled" class="page no-navbar">
+	<div class="page-content">
+		<div class="device-disabled-container">
+			<div class="device-disabled-title">atenção</div>
+			<div class="device-disabled-media">
+				<img src="assets/custom/img/device/disabled.png" alt="Dispositivo Desabilitado" />
+			</div>
+			<div class="device-disabled-message">
+				<?php echo isset($Device['details']) ? $Device['details'] : "Este local não esta habilitado a acessar este sistema."?>
+			</div>
+			<div class="device-disabled-goback">
+				<a href="<?php echo $this->url('home')?>" class="item-link btn btn-reebok btn-confirm" style="text-decoration: none; color: #ffffff;">TENTAR NOVAMENTE</a>			
+			</div>
+		</div>
+	</div>
+</div>

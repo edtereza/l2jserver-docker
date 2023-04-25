@@ -1,0 +1,215 @@
+<?php
+    //:: Dia da semana
+    $Activity['weekday'] =  intval(date('w',strtotime($Activity['date'] . ' ' . $Activity['hour']))) + 1;
+    $Activity['weekday'] = ($Activity['weekday'] == 1 ? 'Domingo' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 2 ? 'Segunda-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 3 ? 'Terça-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 4 ? 'Quarta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 5 ? 'Quinta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 6 ? 'Sexta-Feira' :  $Activity['weekday']);
+    $Activity['weekday'] = ($Activity['weekday'] == 7 ? 'Sábado' :  $Activity['weekday']);
+    //:: Controle do timestamp
+    $timestamp_Agora = time();
+    $timestamp_Inicio = strtotime($Activity['date'] . ' ' . $Activity['hour']);
+    $timestamp_Termino = strtotime($Activity['date'] . ' ' . $Activity['hour']) + ($Activity['duration'] * 60);
+?>
+<div data-page="activity-detail-confirm" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Detalhes da Aula</div>
+		</div>
+	</div>
+	<div class="page-content pull-to-refresh-content">
+		<div class="pull-to-refresh-layer">
+            <div class="preloader color-reebok"></div>
+			<div class="pull-to-refresh-arrow"></div>
+		</div>
+		<div style="max-width: 500px; margin: auto; padding: 10px;">
+            <header class="header" style="border-bottom: 1px solid #c4c4c4; padding-bottom: 10px;">
+            	<h1 class="title" style="margin: 0px; margin-top: 30px;"><?php echo $Activity['class']['name']?></h1>
+            </header>
+            <header class="header" style="border-bottom: 1px solid #c4c4c4; padding-bottom: 10px;">
+				<h5 class="title">
+					<small style="font-size: 50%; letter-spacing: 5px;">Prof. <?php echo $Activity['coach']['name']?> </small>
+				</h5>
+            </header>
+            <header class="header" style="white-space: nowrap; margin-top: 0px; padding-bottom: 10px; letter-spacing: 10px; margin-bottom: 25px;">
+            	<h5 class="title">
+            		<small style="font-size: 50%;"><?php echo $Activity['weekday']?></small>
+            		<br/>
+            		<small style="font-size: 50%; letter-spacing: 5px;"><?php echo date('d/m/Y',strtotime($Activity['date']))?> das <?php echo $Activity['hour']?> até <?php echo date('H:i', (strtotime($Activity['date'] . ' ' . $Activity['hour']) + ($Activity['duration'] * 60)))?> </small>
+            	</h5>
+            </header>
+<?php 
+    for($LayoutPositionY = $Activity['room']['layout']['size']['y']; $LayoutPositionY >= 1; $LayoutPositionY--){
+?>
+			<div class="room-line room-line-<?php echo $LayoutPositionY?>" style="display: none">
+<?php 
+        for($LayoutPositionX = 1; $LayoutPositionX <= $Activity['room']['layout']['size']['x']; $LayoutPositionX++) {
+            //:: Resetando registro do layout
+            $LayoutEntry = null;
+            //:: Localizando registro do layout
+            for($LayoutRowIndex = 0; $LayoutRowIndex < count($Activity['room']['layout']['rows']); $LayoutRowIndex++){
+                if ($Activity['room']['layout']['rows'][$LayoutRowIndex]['position']['x'] == $LayoutPositionX && $Activity['room']['layout']['rows'][$LayoutRowIndex]['position']['y'] == $LayoutPositionY) {
+                    $LayoutEntry = $Activity['room']['layout']['rows'][$LayoutRowIndex];
+                    break;
+                }
+            }
+            //:: Verificando se a entrada foi localizada
+            /*
+             * Alteração realizada em 2021-03-01 a pedido da Cris Alexandre
+             * */
+            if ($LayoutEntry != null && ($LayoutEntry['disabled'] == false /*|| $LayoutEntry['bookedBy'] != null*/)) {
+                //:: Variáveis de controle
+                $LayoutEntryID = 'entry-' . $LayoutEntry['object']['dbid'] . '-' . $LayoutEntry['number'];
+                $LayoutEntryModel = "";
+                $LayoutEntryStyle = null;
+                $LayoutEntryName = ($LayoutEntry['name'] != null ? $LayoutEntry['name'] : null);
+                $LayoutEntryName = ($LayoutEntryName == null ? ($LayoutEntry['number'] < 10 ? '0' . $LayoutEntry['number'] : $LayoutEntry['number']) . substr($LayoutEntry['object']['name'], 0, 1) : $LayoutEntryName);
+                $LayoutEntryPerson = ($LayoutEntry['bookedBy'] !== null ? $LayoutEntry['bookedBy']['dbid'] : null);
+                $LayoutEntryDisabled = $LayoutEntry['disabled'];
+                $LayoutEntryBooked =  ($LayoutEntry['bookedBy'] != null ? true : false);
+                $LayoutEntryBookeable =  ($timestamp_Termino > $timestamp_Agora ? $LayoutEntry['bookable'] : false);
+                $LayoutEntryShowedUp = false;
+                $LayoutEntryBooking = $this->url('activity/booking', [
+                    'area' => $Activity['area']['dbid'],
+                    'class' => $Activity['dbid'],
+                    'year' => explode("-", $Activity['date'])[0],
+                    'month' => explode("-", $Activity['date'])[1],
+                    'day' => explode("-", $Activity['date'])[2],
+                    'hour' => explode(":", $Activity['hour'])[0],
+                    'minute' => explode(":", $Activity['hour'])[1]
+                ]);
+                //:: Verificando tipo do objeto
+                switch ($LayoutEntry['object']['dbid'])
+                {
+                    //:: Esteiras (Bootcamp / Corrida)
+                    case 1:
+                        $LayoutEntryModel = 'model-square';
+                        break;
+                    //:: Funcional (Bootcamp)
+                    case 2:
+                        $LayoutEntryModel = 'model-square-small';
+                        break;
+                    //:: Bike
+                    case 3:
+                        $LayoutEntryModel = 'model-circle';
+                        break;
+                    //:: Bike do Professor
+                    case 4:
+                        $LayoutEntryModel = 'model-circle model-circle-coach';
+                        break;
+                    //:: Posição Fisica
+                    case 5:
+                        $LayoutEntryModel = 'model-circle';
+                        break;
+                        //:: Telão
+                    case 90:
+                        $LayoutEntryModel = 'model-screen';
+                        break;
+                        //:: Caixa de Som
+                    case 91:
+                        $LayoutEntryModel = 'model-sound';
+                        break;
+                        //:: Raia da Piscina
+                    case 92:
+                        $LayoutEntryModel = 'model-pool-lane';
+                        break;
+                        //:: Escada da Piscina
+                    case 93:
+                        $LayoutEntryModel = 'model-pool-stairs';
+                        break;
+                    case 94:
+                        $LayoutEntryModel = 'model-pool-water';
+                        break;
+                        //:: Posição Fisica
+                }
+                //:: Verificando se esta ocupado
+                if ($LayoutEntryBooked) {
+                    if ($Person['dbid'] == $LayoutEntryPerson) {
+                        $LayoutEntryModel .= ' selected';
+                        //$LayoutEntryStyle = "background-image: url('data:" . $Person['photo']['mimetype'] . ";base64," . $Person['photo']['data'] . "') !important; background-size: cover !important; background-repeat: no-repeat !important; background-position: center center !important;";
+                    }
+                    else
+                        $LayoutEntryModel .= ' reserved';
+                }
+                else if (! $LayoutEntryBookeable)
+                    $LayoutEntryModel .= ' disabled';
+?>
+				<div class="room-line-item<?php echo ($LayoutEntryModel != '' ? ' '.$LayoutEntryModel : '')?>"<?php echo ($LayoutEntryStyle !== null ? 'style="'.$LayoutEntryStyle.'"' : '')?> data-request="<?php echo $LayoutEntryBooking?>" data-method="POST" data-selected="<?php echo ($Person['dbid'] == $LayoutEntryPerson ? '1' : '0')?>" data-booked="<?php echo ($LayoutEntryBooked ? 1 : 0)?>" data-disabled="<?php echo ($LayoutEntryDisabled ? 1 : 0)?>"  data-name="<?php echo ($LayoutEntry['name'] == null ? $LayoutEntryName : $LayoutEntry['name'])?>" data-number="<?php echo $LayoutEntry['number']?>" data-object_id="<?php echo $LayoutEntry['object']['dbid']?>" data-object_name="<?php echo $LayoutEntry['object']['name']?>">
+					<a class="room-line-item-link " href="#<?php echo $LayoutEntryID?>"><?php echo $LayoutEntryName?></a>
+				</div>
+<?php 
+            }
+            else {
+                //:: Resetando modelo do layout
+                $LayoutEntryModel = null;
+                $LayoutEntryStyle = null;
+                //:: Verificando tipo do objeto
+                switch ($LayoutEntry['object']['dbid'])
+                {
+                    //:: Telão
+                    case 90:
+                        $LayoutEntryModel = 'model-screen';
+                        break;
+                    //:: Caixa de Som
+                    case 91:
+                        $LayoutEntryModel = 'model-sound';
+                        break;
+                    //:: Raia da Piscina
+                    case 92:
+                        $LayoutEntryModel = 'model-pool-lane';
+                        break;
+                    //:: Escada da Piscina
+                    case 93:
+                        $LayoutEntryModel = 'model-pool-stairs';
+                        break;
+                    //:: Agua                        
+                    case 94:
+                        $LayoutEntryModel = 'model-pool-water';
+                        break;
+                    //:: Bike do Professor
+                    case 95:
+                        if ($Activity['coach']['gender'] == 'F')
+                            $LayoutEntryModel = 'model-bike-coach-female';
+                        else
+                            $LayoutEntryModel = 'model-bike-coach-male';
+                        $photo_Url = $this->url('coach/photo', [
+                            'coach' => $Activity['coach']['dbid']
+                        ]);
+                        $LayoutEntryStyle = "background-image: url('".$photo_Url."'); border-radius: 50%;";
+                        break;
+                    //:: Posição do Professor
+                    case 96:
+                        if ($Activity['coach']['gender'] == 'F')
+                            $LayoutEntryModel = 'model-spot-coach-female';
+                        else
+                            $LayoutEntryModel = 'model-spot-coach-male';
+                        $photo_Url = $this->url('coach/photo', [
+                            'coach' => $Activity['coach']['dbid']
+                        ]);
+                        $LayoutEntryStyle = "background-image: url('".$photo_Url."'); border-radius: 50%;";
+                        break;
+                    //:: Porta Dupla
+                    case 99:
+                        $LayoutEntryModel = 'model-door-double';
+                        break;
+                }
+?>
+				<div class="room-line-item no-border<?php echo ($LayoutEntryModel !== null ? ' ' . $LayoutEntryModel : '')?>"<?php echo ($LayoutEntryStyle !== null ? 'style="'.$LayoutEntryStyle.'"' : '')?>></div>
+<?php 
+            }
+        }
+?>
+			</div>
+<?php
+    } 
+?>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,110 @@
+<?php
+$Birth = $Profile['birth'];
+$Birth = ($Birth != null ? explode('-', $Birth) : null);
+if ($Birth != null){
+    switch ($Birth[1]){
+        case 1:
+            $Birth[1] = 'Janeiro';
+            break;
+        case 2:
+            $Birth[1] = 'Fevereiro';
+            break;
+        case 3:
+            $Birth[1] = 'Março';
+            break;
+        case 4:
+            $Birth[1] = 'Abril';
+            break;
+        case 5:
+            $Birth[1] = 'Maio';
+            break;
+        case 6:
+            $Birth[1] = 'Junho';
+            break;
+        case 7:
+            $Birth[1] = 'Julho';
+            break;
+        case 8:
+            $Birth[1] = 'Agosto';
+            break;
+        case 9:
+            $Birth[1] = 'Setembro';
+            break;
+        case 10:
+            $Birth[1] = 'Outubro';
+            break;
+        case 11:
+            $Birth[1] = 'Novembro';
+            break;
+        case 12:
+            $Birth[1] = 'Dezembro';
+            break;
+    }
+}
+?>
+<div data-page="settings-profile" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Dados Pessoais</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 500px; margin: auto;">
+    		<div class="profile-header">
+    			<img class="profile-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+    			<div class="profile-name"><?php echo $Profile['name']?></div>
+    		</div>
+    		<form id="profile" name="profile" action="<?php echo $this->url('settings/profile')?>" method="POST" enctype="multipart/form-data">
+    			<div class="list-block" style="margin: 5px;">
+         			<ul>
+        				<li>
+    						<div class="item-content">
+        						<div class="item-inner">
+        							<div class="item-title floating-label">Apelido ou como deseja ser <?php echo ($Profile['gender'] == 'M' ? 'chamado' : 'chamada')?>:</div>
+        							<div class="item-input">
+    									<input type="text" id="nickname" name="nickname" value="<?php echo $Profile['nickname']?>" placeholder="Apelido ou como deseja ser <?php echo ($Profile['gender'] == 'M' ? 'chamado' : 'chamada')?>" data-nickname="<?php echo $Profile['nickname']?>"/>
+    								</div>
+    								<div class="item-text input-error"></div>
+        						</div>
+        					</div>
+        				</li>
+        				<li>
+    					    <div class="item-content">
+    							<div class="item-inner">
+    								<div class="item-title floating-label">Peso:</div>
+    								<div class="item-input">
+    									<input type="number" id="weight" name="weight" value="<?php echo $Profile['weight']?>" placeholder="Peso" data-weight="<?php echo $Profile['weight']?>" min="1"  max="280"/>
+    								</div>
+    								<div class="item-text input-error"></div>
+    							</div>
+    						</div>
+    					</li>
+        				<li>
+    						<div class="item-content">
+    							<div class="item-inner">
+    								<div class="item-title floating-label">Altura:</div>
+    								<div class="item-input">
+    									<input type="number" id="height" name="height" value="<?php echo $Profile['height']?>" placeholder="Altura" data-height="<?php echo $Profile['height']?>" min="1"  max="280"/>
+    								</div>
+    								<div class="item-text input-error"></div>
+    							</div>
+    						</div>
+    					</li>
+        				<li>
+    						<div class="item-content">
+    							<div class="item-inner">
+    								<button id="submit" type="submit" class="button button-big button-block button-fill color-reebok">SALVAR INFORMAÇÕES</button>
+    							</div>
+    						</div>
+        				</li>
+                	</ul>
+                </div>
+			</form>
+		</div>
+	</div>
+</div>

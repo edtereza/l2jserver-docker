@@ -1,0 +1,106 @@
+<div data-page="home" class="page"<?php echo ($Redirect != null ? ' data-redirect="' . $Redirect . '"'  : '')?>>
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" data-panel="left" class="link open-panel">
+					<i class="hamburger hamburger--elastic">
+						<span class="hamburger-box">
+							<span class="hamburger-inner"></span>
+						</span>
+					</i>
+				</a>
+			</div>
+			<div class="center" style="text-align: center;">Reebok Sports Club</div>
+			<div class="right">
+				<a href="#" data-popup=".popup-qrcode" class="link open-popup button-qrcode" data-request="<?php echo $this->url('home/qrcode')?>" data-method="POST">
+					<i class="fas fa-qrcode"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div class="profile-header">
+			<div class="user-data">
+    			<div class="user-weight"><?php echo ($Person['weight'] == null ? '???' : $Person['weight'])?> kg</div>
+    			<div class="user-avatar">
+    				<img class="user-avatar img-circle" style="background-image: url('data:<?php echo $Person['photo']['mimetype']?>;base64,<?php echo $Person['photo']['data']?>')"/>
+    			</div>
+    			<div class="user-height"><?php echo ($Person['height'] == null ? '???' : $Person['height'])?> cm</div>
+			</div>
+			<div class="user-name"><?php echo $Person['nickname']?></div>			
+		</div>
+		<div class="resume">
+			<div class="resume-container" style="max-width: 500px; margin: auto;">
+    			<div class="content-block" style="width: 100%;">
+    				<div class="resume-selector">
+        				<div class="resume-button active" data-display="day" data-activity="<?php echo $Person['resume']['today']['activities']?>" data-steps="<?php echo $Person['resume']['today']['steps']?>" data-calories="<?php echo $Person['resume']['today']['calories']?>">
+        					Hoje
+        					<div class="resume-button-outer resume-button-day">
+        						<div class="resume-button-inner resume-button-day"></div>
+        					</div>
+        				</div>
+        				
+        				<div class="resume-button" data-display="week" data-activity="<?php echo $Person['resume']['week']['activities']?>" data-steps="<?php echo $Person['resume']['week']['steps']?>" data-calories="<?php echo $Person['resume']['week']['calories']?>">
+        					Nesta Semana
+        					<div class="resume-button-outer resume-button-week">
+        						<div class="resume-button-inner resume-button-week"></div>
+        					</div>
+        				</div>
+        				
+        				<div class="resume-button" data-display="month" data-activity="<?php echo $Person['resume']['month']['activities']?>" data-steps="<?php echo $Person['resume']['month']['steps']?>" data-calories="<?php echo $Person['resume']['month']['calories']?>">
+        					Neste Mês
+        					<div class="resume-button-outer resume-button-month">
+        						<div class="resume-button-inner resume-button-month"></div>
+        					</div>
+        				</div>
+    				</div>
+    				<div class="resume-display">
+    					<div class="resume-activity resume-day">
+    						<div class="circle">
+    							<div class="number"><?php echo $Person['resume']['today']['activities']?></div>
+    							<div class="display">ATIVIDADES</div>
+    						</div>
+    					</div>
+    					<div class="resume-detail resume-day">
+    						<div class="resume-detail-item steps" style="width: 49%;">
+    							<div class="icon">
+    								<i class="fas fa-shoe-prints"></i>
+    							</div>
+    							<div class="number"><?php echo $Person['resume']['today']['steps']?></div>
+    							<div class="display">PASSOS</div>
+    						</div>
+    						<div class="resume-detail-item calories" style="width: 49%;">
+    							<div class="icon">
+    								<i class="fas fa-fire-alt"></i>
+    							</div>
+    							<div class="number"><?php echo $Person['resume']['today']['calories']?></div>
+    							<div class="display">CALORIAS</div>
+    						</div>
+    					</div>
+    				</div>
+        		</div>
+    		</div>
+    	</div>
+	</div>
+	<div class="popup tablet-fullscreen popup-qrcode">
+    	<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left"></div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="content-block popup-block">
+    		<div class="content-block qrcode-holder">
+				<img class="qrcode-image" src="data:<?php echo $Person['qrcode']['mimetype']?>;base64,<?php echo $Person['qrcode']['data']?>"/>
+				<div class="qrcode-message">
+        			Este QRCode permite que você realize seus check-ins e muito mais
+        		</div>
+			</div>
+			
+		</div>
+	</div>
+</div>

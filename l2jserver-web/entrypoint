@@ -1,0 +1,285 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# Script Path
+# ---------------------------------------------------------------------------
+SCRIPT_PATH="/etc/nginx"
+# ---------------------------------------------------------------------------
+# Config Paths
+# ---------------------------------------------------------------------------
+PATH_CONFIG_PHP_INI="/etc/php8/php.ini"
+PATH_CONFIG_PHP_FPM="/etc/php8/php-fpm.d/www.conf"
+# ---------------------------------------------------------------------------
+# Shared Files
+# ---------------------------------------------------------------------------
+PATH_SHARED_WWW="$SCRIPT_PATH/www"
+# ---------------------------------------------------------------------------
+# Function COPYRIGHT
+# ---------------------------------------------------------------------------
+container_copyright() {
+    echo ''
+}
+# ---------------------------------------------------------------------------
+# Function TRAP
+# ---------------------------------------------------------------------------
+container_trap() {
+    /usr/sbin/nginx -c /etc/nginx/nginx.conf -s stop
+    kill $(ps aux | grep nginx | grep nginx.conf | grep master | awk '{print $1}')
+    kill $(ps aux | grep php-fpm | grep php-fpm.conf | grep master | awk '{print $1}')
+}
+trap container_trap SIGINT SIGTERM
+# ---------------------------------------------------------------------------
+# Function LOG
+# ---------------------------------------------------------------------------
+container_log() {
+	LOG_TEXT=$1
+    LOG_INFO=$2
+	LOG_MSEC=$(date "+%N")
+	LOG_DATE=$(date "+%Y-%m-%d")
+    LOG_TIME=$(date "+%H:%M:%S")
+	# STDOUT
+	echo "[${LOG_DATE} ${LOG_TIME}.${LOG_MSEC:0:5}] [${LOG_INFO}] ${LOG_TEXT}"	
+}
+# ---------------------------------------------------------------------------
+# Function PARAMS SET
+# ---------------------------------------------------------------------------
+container_params_set() {
+    PARAM_SET_FILE=$1
+    PARAM_SET_NAME=$2
+    PARAM_SET_VALUE=$3
+    if [[ "$PARAM_SET_VALUE" != "" ]];
+        then
+            sed -i "s|;${PARAM_SET_NAME}\s*=\s*|${PARAM_SET_NAME} = ${PARAM_SET_VALUE}|g" $PARAM_SET_FILE
+            sed -i "s|${PARAM_SET_NAME}\s*=\s*|${PARAM_SET_NAME} = ${PARAM_SET_VALUE}|g" $PARAM_SET_FILE
+        else
+            sed -i "s|${PARAM_SET_NAME}\s*=\s*|;${PARAM_SET_NAME} = ${PARAM_SET_VALUE}|g" $PARAM_SET_FILE
+        fi
+       
+}
+# ---------------------------------------------------------------------------
+# Function PARAMS
+# ---------------------------------------------------------------------------
+container_params() {
+    #
+    #
+    container_log "Database Params" "INFO"
+    #
+    MARIADB_HOST=${MARIADB_HOST:-"127.0.0.1"}
+    MARIADB_PORT=${MARIADB_PORT:-"3306"}
+    let MARIADB_PORT=$(echo $MARIADB_PORT | sed 's/[^0-9]*//g')
+    MARIADB_DATABASE=${MARIADB_DATABASE:-"l2jlogin"}
+    MARIADB_USERNAME=${MARIADB_USERNAME:-"l2jlogin"}
+    MARIADB_PASSWORD=${MARIADB_PASSWORD:-"l2jlogin"}
+    MARIADB_IDLE_TIME=${MARIADB_IDLE_TIME:-"30"}
+    let MARIADB_IDLE_TIME=$(echo $MARIADB_IDLE_TIME | sed 's/[^0-9]*//g')
+    let MARIADB_IDLE_TIME=0
+    MARIADB_CONNECTIONS=${MARIADB_CONNECTIONS:-"16"}
+    let MARIADB_CONNECTIONS=$(echo $MARIADB_CONNECTIONS | sed 's/[^0-9]*//g')
+    #
+    if [[ "$MARIADB_HOST" == '' ]];
+        then
+            container_log "- MARIADB_HOST cannot be empty" "ERROR"
+            container_log "- - A valid hostname or ip address has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_PORT =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_PORT has invalid" "ERROR"
+            container_log "- - A valid connection port has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_DATABASE" == '' ]];
+        then
+            container_log "- MARIADB_DATABASE cannot be empty" "ERROR"
+            container_log "- - A valid database name has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_USERNAME" == '' ]];
+        then
+            container_log "- MARIADB_USERNAME cannot be empty" "ERROR"
+            container_log "- - A valid username has required." "ERROR"
+            return 0
+		fi
+    if [[ "$MARIADB_PASSWORD" == '' ]];
+        then
+            container_log "- MARIADB_PASSWORD cannot be empty" "ERROR"
+            container_log "- - A valid password has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_IDLE_TIME =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_IDLE_TIME has invalid" "ERROR"
+            container_log "- - A valid iddle time for connections has required." "ERROR"
+            return 0
+		fi
+    if [[ ! $MARIADB_CONNECTIONS =~ ^[0-9]{1,10}$ ]];
+        then
+            container_log "- MARIADB_CONNECTIONS has invalid" "ERROR"
+            container_log "- - A valid number of connections has required." "ERROR"
+            return 0
+		fi
+    #
+    container_log " - Database Settings" "INFO"
+	container_log " - - HOST........: ${MARIADB_HOST}" "INFO"
+	container_log " - - PORT........: ${MARIADB_PORT}" "INFO"
+	container_log " - - DATABASE....: ${MARIADB_DATABASE}" "INFO"
+	container_log " - - USERNAME....: ${MARIADB_USERNAME}" "INFO"
+	container_log " - - PASSWORD....: ${MARIADB_PASSWORD}" "INFO"
+	container_log " - - IDLE TIME...: ${MARIADB_IDLE_TIME}" "INFO"
+	container_log " - - CONNECTIONS.: ${MARIADB_CONNECTIONS}" "INFO"
+	export MARIADB_HOST=$MARIADB_HOST
+	export MARIADB_PORT=$MARIADB_PORT
+    export MARIADB_DATABASE=$MARIADB_DATABASE
+    export MARIADB_USERNAME=$MARIADB_USERNAME
+    export MARIADB_PASSWORD=$MARIADB_PASSWORD
+    export MARIADB_IDLE_TIME=$MARIADB_IDLE_TIME
+    export MARIADB_CONNECTIONS=$MARIADB_CONNECTIONS
+    #
+    container_log "PHP Params" "INFO"
+	#
+    PHP_EXPOSE=${PHP_EXPOSE:-"On"}
+    PHP_CHARSET=${PHP_CHARSET:-"UTF8"}
+    PHP_TIMEZONE=${PHP_TIMEZONE:-"America/Sao_Paulo"}
+    PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-"128M"}
+    PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-"300"}
+    PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-"600"}
+    PHP_MAX_INPUT_VARS=${PHP_MAX_INPUT_VARS:-"512"}
+    PHP_POST_MAX_SIZE=${PHP_POST_MAX_SIZE:-"512M"}
+    PHP_FILE_UPLOADS=${PHP_FILE_UPLOADS:-"On"}
+    PHP_UPLOAD_MAX_FILESIZE=${PHP_UPLOAD_MAX_FILESIZE:-"512M"}
+    PHP_MAX_FILE_UPLOADS=${PHP_MAX_FILE_UPLOADS:-"20"}
+    PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_COMPILE_ERROR\|E_RECOVERABLE_ERROR\|E_ERROR\|E_CORE_ERROR"}
+    PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-"On"}
+    PHP_DISPLAY_STARTUP_ERRORS=${PHP_DISPLAY_STARTUP_ERRORS:-"On"}
+    PHP_LOG_ERRORS=${PHP_LOG_ERRORS:-"On"}
+    PHP_LOG_ERRORS_MAX_LEN=${PHP_LOG_ERRORS_MAX_LEN:-"2048"}
+    PHP_HTML_ERRORS=${PHP_HTML_ERRORS:-"On"}
+    container_log "- Global" "INFO"
+	container_log "- - expose_php.............: ${PHP_EXPOSE}" "INFO"
+	container_log "- - default_charset........: ${PHP_CHARSET}" "INFO"
+	container_log "- - date.timezone..........: ${PHP_TIMEZONE}" "INFO"
+    container_log "- Error Logging" "INFO"
+	container_log "- - log_errors.............: ${PHP_LOG_ERRORS}" "INFO"
+	container_log "- - html_errors............: ${PHP_LOG_ERRORS_MAX_LEN}" "INFO"
+	container_log "- - display_errors.........: ${PHP_DISPLAY_ERRORS}" "INFO"
+	container_log "- - display_startup_errors.: ${PHP_DISPLAY_STARTUP_ERRORS}" "INFO"
+	container_log "- - error_reporting........: ${PHP_ERROR_REPORTING}" "INFO"
+    container_log "- Script Execution" "INFO"
+	container_log "- - memory_limit...........: ${PHP_MEMORY_LIMIT}" "INFO"
+	container_log "- - max_execution_time.....: ${PHP_MAX_EXECUTION_TIME}" "INFO"
+	container_log "- - max_input_time.........: ${PHP_MAX_INPUT_TIME}" "INFO"
+	container_log "- - max_input_vars.........: ${PHP_MAX_INPUT_VARS}" "INFO"
+	container_log "- - post_max_size..........: ${PHP_POST_MAX_SIZE}" "INFO"
+	container_log "- - file_uploads...........: ${PHP_FILE_UPLOADS}" "INFO"
+	container_log "- - upload_max_filesize....: ${PHP_UPLOAD_MAX_FILESIZE}" "INFO"
+	container_log "- - max_file_uploads.......: ${PHP_MAX_FILE_UPLOADS}" "INFO"
+    export PHP_EXPOSE=$PHP_EXPOSE
+    export PHP_CHARSET=$PHP_CHARSET
+    export PHP_TIMEZONE=$PHP_TIMEZONE
+    export PHP_MEMORY_LIMIT=$PHP_MEMORY_LIMIT
+    export PHP_MAX_EXECUTION_TIME=$PHP_MAX_EXECUTION_TIME
+    export PHP_MAX_INPUT_TIME=$PHP_MAX_INPUT_TIME
+    export PHP_MAX_INPUT_VARS=$PHP_MAX_INPUT_VARS
+    export PHP_POST_MAX_SIZE=$PHP_POST_MAX_SIZE
+    export PHP_FILE_UPLOADS=$PHP_FILE_UPLOADS
+    export PHP_UPLOAD_MAX_FILESIZE=$PHP_UPLOAD_MAX_FILESIZE
+    export PHP_MAX_FILE_UPLOADS=$PHP_MAX_FILE_UPLOADS
+    export PHP_ERROR_REPORTING=$PHP_ERROR_REPORTING
+    export PHP_DISPLAY_ERRORS=$PHP_DISPLAY_ERRORS
+    export PHP_DISPLAY_STARTUP_ERRORS=$PHP_DISPLAY_STARTUP_ERRORS
+    export PHP_LOG_ERRORS=$PHP_LOG_ERRORS
+    export PHP_LOG_ERRORS_MAX_LEN=$PHP_LOG_ERRORS_MAX_LEN
+    export PHP_HTML_ERRORS=$PHP_HTML_ERRORS
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Function CONFIG
+# ---------------------------------------------------------------------------
+container_config() {
+    #
+    container_params_set $PATH_CONFIG_PHP_INI "expose_php" $PHP_EXPOSE
+    container_params_set $PATH_CONFIG_PHP_INI "default_charset" $PHP_CHARSET
+    container_params_set $PATH_CONFIG_PHP_INI "date.timezone" $PHP_TIMEZONE
+    container_params_set $PATH_CONFIG_PHP_INI "log_errors" $PHP_LOG_ERRORS
+    container_params_set $PATH_CONFIG_PHP_INI "html_errors" $PHP_HTML_ERRORS
+    container_params_set $PATH_CONFIG_PHP_INI "display_errors" $PHP_DISPLAY_ERRORS
+    container_params_set $PATH_CONFIG_PHP_INI "display_startup_errors" $PHP_DISPLAY_STARTUP_ERRORS
+    container_params_set $PATH_CONFIG_PHP_INI "error_reporting" $PHP_ERROR_REPORTING
+    container_params_set $PATH_CONFIG_PHP_INI "memory_limit" $PHP_MEMORY_LIMIT
+    container_params_set $PATH_CONFIG_PHP_INI "max_execution_time" $PHP_MAX_EXECUTION_TIME
+    container_params_set $PATH_CONFIG_PHP_INI "max_input_time" $PHP_MAX_INPUT_TIME
+    container_params_set $PATH_CONFIG_PHP_INI "max_input_vars" $PHP_MAX_INPUT_VARS
+    container_params_set $PATH_CONFIG_PHP_INI "post_max_size" $PHP_POST_MAX_SIZE
+    container_params_set $PATH_CONFIG_PHP_INI "file_uploads" $PHP_FILE_UPLOADS
+    container_params_set $PATH_CONFIG_PHP_INI "upload_max_filesize" $PHP_UPLOAD_MAX_FILESIZE
+    container_params_set $PATH_CONFIG_PHP_INI "max_file_uploads" $PHP_MAX_FILE_UPLOADS
+    #
+    container_params_set $PATH_CONFIG_PHP_FPM "user" "www"
+    container_params_set $PATH_CONFIG_PHP_FPM "group" "www"
+    container_params_set $PATH_CONFIG_PHP_FPM "listen.owner" "www"
+    container_params_set $PATH_CONFIG_PHP_FPM "listen.group" "www"
+    container_params_set $PATH_CONFIG_PHP_FPM "listen.mode" "0660"
+    container_params_set $PATH_CONFIG_PHP_FPM "log_level" "notice"
+    #
+	return 1
+}
+# ---------------------------------------------------------------------------
+# Function DATABASE
+# ---------------------------------------------------------------------------
+container_database() {
+    #
+    container_log "Database Management" "INFO"
+    #
+    container_log "- Checking connectivity" "INFO"
+    CHECK_MARIADB_CONNECTION=$(mysql -h ${MARIADB_HOST} -u${MARIADB_USERNAME} -p${MARIADB_PASSWORD} -e "SHOW DATABASES" 2>&1)
+    if [[ $? -eq 1 ]];
+        then
+            container_log "- - Can't connect on database" "ERROR"
+            return 0
+        else
+            container_log "- - Successfully connected" "INFO"
+		fi
+    #
+	return 1 
+}
+# ---------------------------------------------------------------------------
+# Main Events
+# ---------------------------------------------------------------------------
+#
+sleep 3
+#
+container_copyright
+#
+container_params
+CONTAINER_PARAMS_CHECK=$?
+if [[ $CONTAINER_PARAMS_CHECK -eq 0 ]];
+	then
+        exit 1
+	fi
+#
+container_config
+CONTAINER_CONFIG_CHECK=$?
+if [[ $CONTAINER_CONFIG_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_database
+CONTAINER_DATABASE_CHECK=$?
+if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
+	then
+		exit 1
+	fi
+#
+container_log "##########################################################################################" "INFO"
+#
+mkdir --parent $PATH_SHARED_WWW
+chown www:www $PATH_SHARED_WWW -R
+/usr/sbin/nginx -t -c /etc/nginx/nginx.conf
+/usr/sbin/nginx -c /etc/nginx/nginx.conf
+/usr/sbin/php-fpm8 -t
+/usr/sbin/php-fpm8 --nodaemonize --fpm-config /etc/php8/php-fpm.conf
+#
+container_log "##########################################################################################" "INFO"
+#
+exit 0

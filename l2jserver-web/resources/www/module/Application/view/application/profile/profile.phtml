@@ -1,0 +1,172 @@
+<?php
+$Birth = $Profile['birth'];
+$Birth = ($Birth != null ? explode('-', $Birth) : null);
+if ($Birth != null){
+    switch ($Birth[1]){
+        case 1:
+            $Birth[1] = 'Janeiro';
+            break;
+        case 2:
+            $Birth[1] = 'Fevereiro';
+            break;
+        case 3:
+            $Birth[1] = 'Março';
+            break;
+        case 4:
+            $Birth[1] = 'Abril';
+            break;
+        case 5:
+            $Birth[1] = 'Maio';
+            break;
+        case 6:
+            $Birth[1] = 'Junho';
+            break;
+        case 7:
+            $Birth[1] = 'Julho';
+            break;
+        case 8:
+            $Birth[1] = 'Agosto';
+            break;
+        case 9:
+            $Birth[1] = 'Setembro';
+            break;
+        case 10:
+            $Birth[1] = 'Outubro';
+            break;
+        case 11:
+            $Birth[1] = 'Novembro';
+            break;
+        case 12:
+            $Birth[1] = 'Dezembro';
+            break;
+    }
+}
+?>
+
+<div data-page="profile" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Meu Perfil</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div class="profile-header">
+			<img class="user-avatar img-circle" style="background-image: url('data:<?php echo $Photo['mimetype']?>;base64,<?php echo $Photo['data']?>')"/>
+			<div class="user-name"><?php echo $Profile['name']?></div>
+		</div>
+		<div style="max-width: 500px; margin: auto;">
+			<div class="card">
+				<div class="card-content">
+					<div class="card-content-inner" style="padding: 0px;">
+						<form id="nickname" name="nickname" action="<?php echo $this->url('profile/nickname')?>" method="POST" enctype="multipart/form-data">
+							<div class="list-block no-hairlines-between">
+                    			<ul>	
+                    				<li>
+                    					<div class="item-content">
+                							<div class="item-media">
+                								<img alt="Apelido" src="<?php echo $this->basePath('/assets/custom/icons/nickname_24x24.png')?>"/>
+                							</div>
+                							<div class="item-inner">
+                								<div class="item-input">
+                									<input type="text" name="apelido" value="<?php echo $Profile['nickname']?>" placeholder="Apelido" data-nickname="<?php echo $Profile['nickname']?>"/>
+                								</div>
+                								<div class="item-text input-error"></div>
+                							</div>
+                							<div class="item-media">
+                    							<button type="submit" class="button button-block button-fill button-raised button-social" style="padding-left: 0px; margin-right: 10px; min-width: 45px;">
+													<i class="material-icons">save</i>
+												</button>
+                							</div>
+                						</div>
+                    				</li>
+                    			</ul>
+                    		</div>
+                    	</form>
+                    	<form id="metric" name="metric" action="<?php echo $this->url('profile/metric')?>" method="POST" enctype="multipart/form-data">
+                    		<div class="list-block no-hairlines-between">
+                    			<ul>	
+                    				<li>
+                    					<div class="item-content" style="width: 42%; float: left">
+                							<div class="item-media">
+                								<img alt="Peso" src="<?php echo $this->basePath('/assets/custom/icons/weight_24x24.png')?>"/>
+                							</div>
+                							<div class="item-inner">
+                								<div class="item-input">
+                									<input type="number" name="weight" value="<?php echo $Profile['weight']?>" placeholder="Peso" data-nickname="<?php echo $Profile['weight']?>" min="1"  max="280"/>
+                								</div>
+                								<div class="item-text input-error"></div>
+                							</div>
+                						</div>
+                    					<div class="item-content" style="width: 57%; float: right">
+                							<div class="item-media">
+                								<img alt="Altura" src="<?php echo $this->basePath('/assets/custom/icons/height_24x24.png')?>"/>
+                							</div>
+                							<div class="item-inner">
+                								<div class="item-input">
+                									<input type="number" name="height" value="<?php echo $Profile['height']?>" placeholder="Altura" data-nickname="<?php echo $Profile['height']?>" min="1"  max="280"/>
+                								</div>
+                								<div class="item-text input-error"></div>
+                							</div>
+                							<div class="item-media">
+                    							<button type="submit" class="button button-block button-fill button-raised button-social" style="padding-left: 0px; margin-right: 10px; min-width: 45px;">
+													<i class="material-icons">save</i>
+												</button>
+                							</div>
+                						</div>
+                    				</li>
+                    			</ul>
+                    		</div>
+                    	</form>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-content">
+					<div class="card-content-inner">
+						<div class="list-block no-hairlines no-hairlines-between">
+							<ul>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">
+												<i class="material-icons">person_outline</i>
+											</div>
+											<div class="item-after"><?php echo $Profile['name']?></div>
+										</div>
+									</div>
+								</li>
+								<?php if ($Birth != null) { ?>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">
+												<i class="material-icons">cake</i>
+											</div>
+											<div class="item-after"><?php echo $Birth[2]?> de <?php echo $Birth[1]?> de <?php echo $Birth[0]?></div>
+										</div>
+									</div>
+								</li>
+								<?php } ?>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">
+												<i class="material-icons">mail_outline</i>
+											</div>
+											<div class="item-after"><?php echo $Profile['email']?></div>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

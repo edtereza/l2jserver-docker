@@ -1,0 +1,93 @@
+<div data-page="settings-notification" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Configurações de Notificação</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div style="max-width: 500px; margin: auto;">
+		
+			<div class="content-block-title">CONFIGURAÇÕES DE NOTIFICAÇÃO</div>
+			<div class="list-block" style="margin: 5px;">
+     			<ul>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">perm_phone_msg</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Notificações por SMS</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="sms" name="sms" value="1" type="checkbox"<?php echo ($Notification['sms'] == true ? " checked" : '')?> data-status="<?php echo ($Notification['sms'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">settings_cell</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Notificações por Push</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="push" name="push" value="1" type="checkbox"<?php echo ($Notification['push'] == true ? " checked" : '')?> data-status="<?php echo ($Notification['push'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">mail</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Notificações por E-Mail</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="mail" name="mail" value="1" type="checkbox"<?php echo ($Notification['mail'] == true ? " checked" : '')?> data-status="<?php echo ($Notification['mail'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-reebok">chat</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Permitir Notificações por WhatsApp</div>
+								<div class="item-after">
+    								<label class="label-switch">
+    									<input id="whatsapp" name="whatsapp" value="1" type="checkbox"<?php echo ($Notification['whatsapp'] == true ? " checked" : '')?> data-status="<?php echo ($Notification['whatsapp'] == true ? '1' : '0')?>"/>
+    									<span class="checkbox"></span>
+    								</label>
+    							</div>
+							</div>
+						</div>
+    				</li>
+    				<li>
+						<div class="item-content">
+							<div class="item-inner">
+								<button id="submit" type="button" class="button button-big button-block button-fill color-reebok" data-request="<?php echo $this->url('settings/notification')?>" data-method="POST">SALVAR PREFERÊNCIAS</button>
+							</div>
+						</div>
+    				</li>
+            	</ul>
+            </div>
+		</div>
+	</div>
+</div>

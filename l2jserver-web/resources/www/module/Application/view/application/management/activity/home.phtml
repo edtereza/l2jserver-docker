@@ -1,0 +1,43 @@
+<div data-page="management-technique-n1-home" class="page">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" data-panel="left" class="link open-panel">
+					<i class="hamburger hamburger--elastic">
+						<span class="hamburger-box">
+							<span class="hamburger-inner"></span>
+						</span>
+					</i>
+				</a>
+			</div>
+			<div class="center">Gestão de Aulas</div>
+		</div>
+	</div>
+	<div class="page-content">
+		<div class="filter">
+        	<div class="list-block">
+            	<ul>
+            		<li>
+            			<a href="#" class="item-link smart-select smart-select-n1-filter-location" data-open-in="popup" data-searchbar="false" data-searchbar-placeholder="Localizar" data-searchbar-cancel="Cancelar">
+            				<select name="location">
+<?php 
+    foreach($Filter['Location']['records'] as $Location) {
+?>
+            					<option value="<?php echo $Location['dbid']?>" <?php echo $Filter['Location']['current'] == $Location['dbid'] ? 'selected="selected"' : ''?>><?php echo $Location['name']?></option>
+<?php 
+    }
+?>
+            				</select>
+            				<div class="item-content">
+            					<div class="item-inner">
+            						<div class="item-title">Unidade</div>
+            					</div>
+            				</div>
+            			</a>
+            		</li>
+            	</ul>
+            </div>
+		</div>
+		<div class="data-holder" data-request-url="<?php echo $this->url('management/activity/grid')?>" data-request-method="POST"></div>
+	</div>
+</div>

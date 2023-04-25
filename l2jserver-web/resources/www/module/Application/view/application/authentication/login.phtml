@@ -1,0 +1,52 @@
+<div data-page="login" class="page no-navbar">
+	<div class="page-content" style="max-width: 400px; margin: auto;">
+		<div class="content-block">
+			<img class="logo" src="<?php echo $this->basePath('/assets/custom/logo/256x256.png')?>" />
+		</div>
+		<div style="text-align: center">
+			Efetue o login utilizando seu usuário e senha para acessar as informações de suas crianças. 
+		</div>
+		<form id="login" name="login" action="<?php echo $this->url('login')?>" method="POST" enctype="multipart/form-data">
+			<div class="list-block no-hairlines">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons">mail_outline</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-input">
+									<input type="text" name="username" placeholder="E-mail, código reebok ou CPF..." />
+								</div>
+								<div class="item-text input-error"></div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons">lock_outline</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-input">
+									<input type="password" name="password" placeholder="Senha" data-toggle="show-hide-password" required />
+								</div>
+								<div class="item-after show-hide-password">
+									<a href="#" class="color-gray" title="Exibir / Ocultar" data-action="show-hide-password">
+										<i class="material-icons">visibility</i>
+									</a>
+								</div>
+								<div class="item-text input-error"></div>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<a href="<?php echo $this->url('password-recover')?>">Esqueceu sua senha?</a>
+			</div>
+			<div class="content-block">
+				<button type="submit" class="button button-big button-block button-fill">Log In</button>
+				<p class="text-center">Ainda não se registrou? <a href="<?php echo $this->url('signup')?>">Registre-se aqui.</a></p>
+			</div>
+		</form>
+	</div>
+</div>

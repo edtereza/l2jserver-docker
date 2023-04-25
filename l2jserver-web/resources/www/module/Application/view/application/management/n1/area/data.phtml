@@ -1,0 +1,73 @@
+<div class="card">
+	<div class="card-header">Indicadores de Performance</div>
+	<div class="card-content">
+		<div class="list-block no-hairlines no-hairlines-between">
+			<ul>
+				<li>
+					<div class="item-content" style="min-height: 36px; height: 36px">
+						<div class="item-inner" style="padding-top: 0; padding-bottom: 0; min-height: 36px; height: 36px;  border-bottom: 1px solid rgba(0,0,0,.125);">
+							<div class="item-content" style="min-height: 36px;">Aulas</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['classes']?></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="min-height: 36px; height: 36px">
+						<div class="item-inner" style="padding-top: 0; padding-bottom: 0; min-height: 36px; height: 36px;  border-bottom: 1px solid rgba(0,0,0,.125);">
+							<div class="item-content" style="min-height: 36px;">Meta de Presenças</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['presence']['goal']?></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="min-height: 36px; height: 36px">
+						<div class="item-inner" style="padding-top: 0;">
+							<div class="item-content" style="min-height: 36px; ">Presenças</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['presence']['total']?></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="border-top: 1px solid rgba(0,0,0,.125); border-bottom: 1px solid rgba(0,0,0,.125);">
+						<div class="item-inner">
+							<div class="item-content" style="padding-left: 5px; font-weight: bold;">Taxa de Presença</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['presence']['rate']?>%</div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="min-height: 36px; height: 36px">
+						<div class="item-inner" style="padding-top: 0;">
+							<div class="item-content" style="min-height: 36px;">Alunos Distintos</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['students']?></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="border-top: 1px solid rgba(0,0,0,.125); border-bottom: 1px solid rgba(0,0,0,.125);">
+						<div class="item-inner">
+							<div class="item-content" style="padding-left: 5px; font-weight: bold;">NPS&nbsp;<small>(baseado em <?php echo $Dataset['records'][0]['nps']['total']?> avaliações)</small></div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['nps']['rate']?>%</div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="border-top: 1px solid rgba(0,0,0,.125); border-bottom: 1px solid rgba(0,0,0,.125);">
+						<div class="item-inner">
+							<div class="item-content" style="padding-left: 5px; font-weight: bold;">Churn Rate</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['chrun']['rate']?>%</div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content" style="border-top: 1px solid rgba(0,0,0,.125);">
+						<div class="item-inner">
+							<div class="item-content" style="padding-left: 5px; font-weight: bold;">Churn / Novos Clientes</div>
+							<div class="item-after"><?php echo $Dataset['records'][0]['chrun']['news']?>%</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
