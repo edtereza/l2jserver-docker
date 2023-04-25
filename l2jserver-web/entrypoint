@@ -216,6 +216,7 @@ container_config() {
     #
     container_params_set $PATH_CONFIG_PHP_FPM "user" "www"
     container_params_set $PATH_CONFIG_PHP_FPM "group" "www"
+    container_params_set $PATH_CONFIG_PHP_FPM "listen" "/run/php/php-fpm.sock"
     container_params_set $PATH_CONFIG_PHP_FPM "listen.owner" "www"
     container_params_set $PATH_CONFIG_PHP_FPM "listen.group" "www"
     container_params_set $PATH_CONFIG_PHP_FPM "listen.mode" "0660"
@@ -273,12 +274,13 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 #
 container_log "##########################################################################################" "INFO"
 #
-mkdir --parent $PATH_SHARED_WWW
+mkdir --parent /run/php
+mkdir --parent /run/nginx
 chown www:www $PATH_SHARED_WWW -R
 /usr/sbin/nginx -t -c /etc/nginx/nginx.conf
 /usr/sbin/nginx -c /etc/nginx/nginx.conf
 /usr/sbin/php-fpm8 -t
-/usr/sbin/php-fpm8 --nodaemonize --fpm-config /etc/php8/php-fpm.conf
+/usr/sbin/php-fpm8 --daemonize --fpm-config /etc/php8/php-fpm.conf
 #
 container_log "##########################################################################################" "INFO"
 #
