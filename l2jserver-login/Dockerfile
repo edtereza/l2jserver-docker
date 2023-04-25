@@ -2,7 +2,7 @@ FROM alpine:3.16
 MAINTAINER Erik Douglas Tereza <erik.d.tereza@gmail.com>
 LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
       architecture="amd64/x86_64" \
-      alpine-version="3.17.2" \
+      alpine-version="3.16.5" \
       l2jserver-version="2.6.6.0" \      
       org.opencontainers.image.os="Alpine Linux" \
       org.opencontainers.image.title="l2jserver-login" \
@@ -15,7 +15,7 @@ LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
 #      
 ENV PATH_SERVER="/opt/l2jserver"
 ENV PATH_CLIENT="/opt/l2jserver/cli"
-ENV PATH_SOURCE="/opt/l2jserver/source"
+ENV PATH_SOURCE="/opt/source"
 #
 # Enviroment GIT REPOSITORIES
 #      
@@ -26,6 +26,8 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 # Dependences
 #
 RUN apk update && apk --no-cache add tzdata git maven mariadb-client unzip openjdk17-jdk cracklib && \
+    mkdir -p "$PATH_SERVER" && \
+    mkdir -p "$PATH_CLIENT" && \
     mkdir -p "$PATH_SOURCE"
 #
 # L2J Login Server    
@@ -45,16 +47,14 @@ RUN git clone "$HTTP_SOURCE_CLIENT" "$PATH_SOURCE/l2j-server-cli" && \
 # L2J Docker Engine
 #
 RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker" && \
-    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" "$PATH_SERVER/entrypoint" && \
-    ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint && \
-    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" "$PATH_SERVER/healthcheck" && \
-    ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/entrypoint" /bin/entrypoint && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-login/healthcheck" /bin/healthcheck
 #
 # CHMOD for execution
 #
 RUN chmod +x "$PATH_CLIENT/l2jcli.sh" && \
-    chmod +x "$PATH_SERVER/entrypoint" && \
-    chmod +x "$PATH_SERVER/healthcheck"
+    chmod +x /bin/entrypoint && \
+    chmod +x /bin/healthcheck
 #
 # CleanUP
 #

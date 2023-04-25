@@ -18,12 +18,12 @@ PATH_SHARED_WWW="$SCRIPT_PATH/www"
 container_copyright() {
     echo ''
 }
+/usr/sbin/nginx -c /etc/nginx/nginx.conf -s stop &&  kill $(ps aux | grep php-fpm | grep php-fpm.conf | grep master | awk '{print $1}')
 # ---------------------------------------------------------------------------
 # Function TRAP
 # ---------------------------------------------------------------------------
 container_trap() {
-    /usr/sbin/nginx -c /etc/nginx/nginx.conf -s stop
-    kill $(ps aux | grep php-fpm | grep php-fpm.conf | grep master | awk '{print $1}')
+    /usr/sbin/nginx -c /etc/nginx/nginx.conf -s stop &&  kill $(ps aux | grep php-fpm | grep php-fpm.conf | grep master | awk '{print $1}')
 }
 trap container_trap SIGINT SIGTERM
 # ---------------------------------------------------------------------------
@@ -38,24 +38,7 @@ container_log() {
 	# STDOUT
 	echo "[${LOG_DATE} ${LOG_TIME}.${LOG_MSEC:0:5}] [${LOG_INFO}] ${LOG_TEXT}"	
 }
-# ---------------------------------------------------------------------------
-# Function PARAMS PHP
-# ---------------------------------------------------------------------------
-container_params_php() {
-    PARAM_SET_FILE=$1
-    PARAM_SET_NAME=$2
-    PARAM_SET_LINE=$(grep -n -w "$PARAM_SET_NAME =" $PARAM_SET_FILE | awk '{print $1}' FS=:)
-    PARAM_SET_VALUE=$3
-    if [[ ! $PARAM_SET_LINE =~ ^[0-9]{1,10}$ ]];
-        then
-            if [[ "$PARAM_SET_VALUE" != "" ]];
-                then
-                    sed -i '$PARAM_SET_LINEs/.*/$PARAM_SET_NAME = $PARAM_SET_VALUE/' $PARAM_SET_FILE
-                else
-                    sed -i '$PARAM_SET_LINEs/.*/;$PARAM_SET_NAME = $PARAM_SET_VALUE/' $PARAM_SET_FILE
-                fi
-        fi
-}
+
 # ---------------------------------------------------------------------------
 # Function PARAMS
 # ---------------------------------------------------------------------------
@@ -152,7 +135,7 @@ container_params() {
     PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-"On"}
     PHP_DISPLAY_STARTUP_ERRORS=${PHP_DISPLAY_STARTUP_ERRORS:-"On"}
     PHP_LOG_ERRORS=${PHP_LOG_ERRORS:-"On"}
-    PHP_LOG_ERRORS_MAX_LEN=${PHP_LOG_ERRORS_MAX_LEN:-"2048"}
+    PHP_LOG_ERRORS_MAX_LEN=${PHP_LOG_ERRORS_MAX_LEN:-"4096"}
     PHP_HTML_ERRORS=${PHP_HTML_ERRORS:-"On"}
     container_log "- Global" "INFO"
 	container_log "- - expose_php.............: ${PHP_EXPOSE}" "INFO"
@@ -194,34 +177,128 @@ container_params() {
 	return 1
 }
 # ---------------------------------------------------------------------------
+# Function CONFIG PHP
+# ---------------------------------------------------------------------------
+container_config_php() {
+    PARAM_SET_FILE=$1
+    PARAM_SET_LINE=$2  
+    PARAM_SET_NAME=$3
+    PARAM_SET_VALUE=$4
+    #
+    container_log "- - $PARAM_SET_NAME" "INFO"
+    #
+    if [[ "$PARAM_SET_VALUE" != "" ]];
+        then
+            sed -i "$PARAM_SET_LINEs/.*/$PARAM_SET_NAME = $PARAM_SET_VALUE/" $PARAM_SET_FILE
+        else
+            sed -i "$PARAM_SET_LINEs/.*/;$PARAM_SET_NAME = $PARAM_SET_VALUE/" $PARAM_SET_FILE
+        fi
+}
+# ---------------------------------------------------------------------------
 # Function CONFIG
 # ---------------------------------------------------------------------------
 container_config() {
     #
-    container_params_php $PATH_CONFIG_PHP_INI "expose_php" $PHP_EXPOSE
-    container_params_php $PATH_CONFIG_PHP_INI "default_charset" $PHP_CHARSET
-    container_params_php $PATH_CONFIG_PHP_INI "date.timezone" $PHP_TIMEZONE
-    container_params_php $PATH_CONFIG_PHP_INI "log_errors" $PHP_LOG_ERRORS
-    container_params_php $PATH_CONFIG_PHP_INI "html_errors" $PHP_HTML_ERRORS
-    container_params_php $PATH_CONFIG_PHP_INI "display_errors" $PHP_DISPLAY_ERRORS
-    container_params_php $PATH_CONFIG_PHP_INI "display_startup_errors" $PHP_DISPLAY_STARTUP_ERRORS
-    container_params_php $PATH_CONFIG_PHP_INI "error_reporting" $PHP_ERROR_REPORTING
-    container_params_php $PATH_CONFIG_PHP_INI "memory_limit" $PHP_MEMORY_LIMIT
-    container_params_php $PATH_CONFIG_PHP_INI "max_execution_time" $PHP_MAX_EXECUTION_TIME
-    container_params_php $PATH_CONFIG_PHP_INI "max_input_time" $PHP_MAX_INPUT_TIME
-    container_params_php $PATH_CONFIG_PHP_INI "max_input_vars" $PHP_MAX_INPUT_VARS
-    container_params_php $PATH_CONFIG_PHP_INI "post_max_size" $PHP_POST_MAX_SIZE
-    container_params_php $PATH_CONFIG_PHP_INI "file_uploads" $PHP_FILE_UPLOADS
-    container_params_php $PATH_CONFIG_PHP_INI "upload_max_filesize" $PHP_UPLOAD_MAX_FILESIZE
-    container_params_php $PATH_CONFIG_PHP_INI "max_file_uploads" $PHP_MAX_FILE_UPLOADS
+    container_log "Setup Config" "INFO"
     #
-    container_params_php $PATH_CONFIG_PHP_FPM "user" "www"
-    container_params_php $PATH_CONFIG_PHP_FPM "group" "www"
-    container_params_php $PATH_CONFIG_PHP_FPM "listen" "/run/php/php-fpm.sock"
-    container_params_php $PATH_CONFIG_PHP_FPM "listen.owner" "www"
-    container_params_php $PATH_CONFIG_PHP_FPM "listen.group" "www"
-    container_params_php $PATH_CONFIG_PHP_FPM "listen.mode" "0660"
-    container_params_php $PATH_CONFIG_PHP_FPM "log_level" "notice"
+    container_log "- $PATH_CONFIG_PHP_INI" "INFO"
+    cat > $PATH_CONFIG_PHP_INI << EOF
+[PHP]
+engine = On
+short_open_tag = Off
+precision = 14
+output_buffering = 4096
+zlib.output_compression = Off
+implicit_flush = Off
+unserialize_callback_func =
+serialize_precision = -1
+disable_functions =
+disable_classes =
+zend.enable_gc = On
+zend.exception_ignore_args = On
+zend.exception_string_param_max_len = 0
+expose_php = ${PHP_EXPOSE}
+max_execution_time = ${PHP_MAX_EXECUTION_TIME}
+max_input_time = ${PHP_MAX_INPUT_TIME}
+max_input_vars = ${PHP_MAX_INPUT_VARS}
+memory_limit = ${PHP_MEMORY_LIMIT}M
+error_reporting = ${PHP_ERROR_REPORTING}
+display_errors = ${PHP_DISPLAY_ERRORS}
+display_startup_errors = ${PHP_DISPLAY_STARTUP_ERRORS}
+log_errors = ${PHP_LOG_ERRORS}
+log_errors_max_len = ${PHP_LOG_ERRORS_MAX_LEN}
+ignore_repeated_errors = Off
+ignore_repeated_source = Off
+report_memleaks = On
+variables_order = "GPCS"
+request_order = "GP"
+register_argc_argv = Off
+auto_globals_jit = On
+post_max_size = ${PHP_POST_MAX_SIZE}M
+auto_prepend_file =
+auto_append_file =
+default_mimetype = "text/html"
+default_charset = "${PHP_CHARSET}"
+include_path = ".:/usr/share/php8"
+doc_root =
+user_dir =
+enable_dl = Off
+file_uploads = ${PHP_FILE_UPLOADS}
+upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}M
+max_file_uploads = ${PHP_MAX_FILE_UPLOADS}
+allow_url_fopen = On
+allow_url_include = Off
+default_socket_timeout = 5
+[CLI Server]
+cli_server.color = On
+[Date]
+date.timezone = ${PHP_TIMEZONE}
+date.default_latitude = 31.7667
+date.default_longitude = 35.2333
+date.sunrise_zenith = 90.833333
+date.sunset_zenith = 90.833333
+[Session]
+session.save_handler = files
+session.use_strict_mode = 0
+session.use_cookies = 1
+session.use_only_cookies = 1
+session.name = SID
+session.auto_start = 0
+session.cookie_lifetime = 0
+session.cookie_path = /
+session.cookie_domain =
+session.cookie_httponly =
+session.cookie_samesite =
+session.serialize_handler = php
+session.gc_probability = 1
+session.gc_divisor = 1000
+session.gc_maxlifetime = 1440
+session.referer_check =
+session.cache_limiter = nocache
+session.cache_expire = 720
+session.use_trans_sid = 0
+session.sid_length = 256
+session.trans_sid_tags = "a=href,area=href,frame=src,form="
+session.sid_bits_per_character = 5
+EOF
+    #
+    container_log "- $PATH_CONFIG_PHP_FPM" "INFO"
+    cat > $PATH_CONFIG_PHP_FPM << EOF
+[www]
+user = www
+group = www
+listen = /run/php-fpm.sock
+listen.owner = www
+listen.group = www
+listen.mode = 0660
+pm = dynamic
+pm.max_children = 32
+pm.start_servers = 2
+pm.min_spare_servers = 2
+pm.max_spare_servers = 8
+pm.process_idle_timeout = 30s;
+pm.max_requests = 1024
+EOF
     #
 	return 1
 }
@@ -248,8 +325,6 @@ container_database() {
 # Main Events
 # ---------------------------------------------------------------------------
 #
-sleep 3
-#
 container_copyright
 #
 container_params
@@ -275,13 +350,8 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 #
 container_log "##########################################################################################" "INFO"
 #
-chown www:www /run/php -R
 chown www:www $PATH_SHARED_WWW -R
-/usr/sbin/nginx -t -c /etc/nginx/nginx.conf
 /usr/sbin/nginx -c /etc/nginx/nginx.conf
-/usr/sbin/php-fpm8 -t
-/usr/sbin/php-fpm8 --daemonize --fpm-config /etc/php8/php-fpm.conf
-#
-container_log "##########################################################################################" "INFO"
+/usr/sbin/php-fpm8 --nodaemonize --fpm-config /etc/php8/php-fpm.conf
 #
 exit 0

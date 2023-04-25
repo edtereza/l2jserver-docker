@@ -15,7 +15,7 @@ LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
 #   
 ENV PATH_SERVER="/opt/l2jserver"
 ENV PATH_CLIENT="/opt/l2jserver/cli"
-ENV PATH_SOURCE="/opt/l2jserver/source"
+ENV PATH_SOURCE="/opt/source"
 #
 # Enviroment GIT REPOSITORIES
 # 
@@ -28,6 +28,8 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 # Dependences
 #
 RUN apk update && apk --no-cache add tzdata git maven mariadb-client unzip cracklib openjdk17-jdk && \
+    mkdir -p "$PATH_SERVER" && \
+    mkdir -p "$PATH_CLIENT" && \
     mkdir -p "$PATH_SOURCE"
 #
 # L2J Game Server    
@@ -69,16 +71,14 @@ RUN mv "$PATH_SERVER/data" "$PATH_SERVER/data.d" && \
 # L2J Docker Engine
 #
 RUN git clone "$HTTP_SOURCE_DOCKER" "$PATH_SOURCE/l2j-server-docker" && \
-    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/entrypoint" "$PATH_SERVER/entrypoint" && \
-    ln -s "$PATH_SERVER/entrypoint" /bin/entrypoint && \
-    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/healthcheck" "$PATH_SERVER/healthcheck" && \
-    ln -s "$PATH_SERVER/healthcheck" /bin/healthcheck
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/entrypoint" /bin/entrypoint && \
+    mv "$PATH_SOURCE/l2j-server-docker/l2jserver-game/healthcheck" /bin/healthcheck
 #
 # CHMOD for execution
 #
 RUN chmod +x "$PATH_CLIENT/l2jcli.sh" && \
-    chmod +x "$PATH_SERVER/entrypoint" && \
-    chmod +x "$PATH_SERVER/healthcheck"
+    chmod +x "/bin/entrypoint" && \
+    chmod +x "/bin/healthcheck"
 #
 # CleanUP
 #

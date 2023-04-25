@@ -9,7 +9,7 @@ INSTALL_PASSWORD=${INSTALL_PASSWORD:1:16}
 # ---------------------------------------------------------------------------
 # Image Versions
 # ---------------------------------------------------------------------------
-DOCKER_IMAGE_VERSION_API="1.0.0.0"
+DOCKER_IMAGE_VERSION_WEB="1.0.0.0"
 DOCKER_IMAGE_VERSION_GAME="2.6.3.0"
 DOCKER_IMAGE_VERSION_LOGIN="2.6.6.0"
 DOCKER_IMAGE_VERSION_MARIADB="10.6.12"
@@ -24,6 +24,23 @@ build_log() {
 	# STDOUT
 	echo "[$LOG_DATE $LOG_TIME] [$LOG_INFO] $LOG_TEXT"
 }
+# ---------------------------------------------------------------------------
+# Checking if not has Ubuntu OS
+# ---------------------------------------------------------------------------
+UBUNTU_CHECK=$(cat /etc/os-release | grep ubuntu | grep ID)
+if [[ "$UBUNTU_CHECK" == "" ]];
+    then
+        build_log "Ubuntu OS has required to run this script" "ERROR"
+        exit 1
+    fi
+# ---------------------------------------------------------------------------
+# Checking if not has root access
+# ---------------------------------------------------------------------------
+if [ "$EUID" -ne 0 ]
+    then 
+        build_log "You need run this script with sudo or root account" "ERROR"
+        exit 1
+    fi
 # ---------------------------------------------------------------------------
 # Back to main folder
 # ---------------------------------------------------------------------------
@@ -103,8 +120,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
   l2jserver-web:
-    container_name: l2jserver-game
-    image: edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
+    container_name: l2jserver-web
+    image: edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB}
     restart: always
     depends_on:
       - l2jserver-mariadb
@@ -164,10 +181,11 @@ services:
 EOF
 cat ${INSTALL_PATH}/docker-compose.yml
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Starting Up
 # ---------------------------------------------------------------------------
-build_log "Starting L2JServer with docker-compose" "INFO"
+build_log "Starting docker-compose containers" "INFO"
 build_log "############################################################" "INFO"
 docker-compose --file "docker-compose.yml" up -d
 build_log "############################################################" "INFO"

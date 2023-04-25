@@ -22,6 +22,23 @@ build_log() {
 	echo "[$LOG_DATE $LOG_TIME] [$LOG_INFO] $LOG_TEXT"
 }
 # ---------------------------------------------------------------------------
+# Checking if not has Ubuntu OS
+# ---------------------------------------------------------------------------
+UBUNTU_CHECK=$(cat /etc/os-release | grep ubuntu | grep ID)
+if [[ "$UBUNTU_CHECK" == "" ]];
+    then
+        build_log "Ubuntu OS has required to run this script" "ERROR"
+        exit 1
+    fi
+# ---------------------------------------------------------------------------
+# Checking if not has root access
+# ---------------------------------------------------------------------------
+if [ "$EUID" -ne 0 ]
+    then 
+        build_log "You need run this script with sudo or root account" "ERROR"
+        exit 1
+    fi
+# ---------------------------------------------------------------------------
 # Manage Dependences
 # ---------------------------------------------------------------------------
 build_log "Dependences" "INFO"
@@ -32,6 +49,7 @@ build_log "############################################################" "INFO"
 build_log "- multiarch/qemu-user-static container" "INFO"
 docker run --rm --privileged multiarch/qemu-user-static --reset -p yes;
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Creating docker build enviroment
 # ---------------------------------------------------------------------------
@@ -44,11 +62,13 @@ if [[ "$DOCKER_CHECK_BUILDER_INSTANCE" == "" ]];
         build_log "############################################################" "INFO"
     fi
 docker buildx use l2jserver;    
+echo ''
 #
 build_log "Inspect docker buildx enviroment" "INFO"
 build_log "############################################################" "INFO"
 docker buildx inspect --bootstrap;
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Building L2JServer MariaDB
 # ---------------------------------------------------------------------------
@@ -57,6 +77,7 @@ build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-mariadb;
 docker build --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Building L2JServer Login
 # ---------------------------------------------------------------------------
@@ -65,6 +86,7 @@ build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-login;
 docker build --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Building L2JServer Game
 # ---------------------------------------------------------------------------
@@ -73,6 +95,7 @@ build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-game;
 docker build --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Building L2JServer Web
 # ---------------------------------------------------------------------------
@@ -81,6 +104,7 @@ build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-web;
 docker build --tag edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB} --load .
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Removing all unused docker content
 # ---------------------------------------------------------------------------
@@ -88,6 +112,7 @@ build_log "Running docker system prune" "INFO"
 build_log "############################################################" "INFO"
 printf 'y' | docker system prune
 build_log "############################################################" "INFO"
+echo ''
 # ---------------------------------------------------------------------------
 # Back to main folder
 # ---------------------------------------------------------------------------

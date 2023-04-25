@@ -361,8 +361,6 @@ container_database() {
 # Main Events
 # ---------------------------------------------------------------------------
 #
-sleep 3
-#
 container_copyright
 #
 container_params
@@ -396,7 +394,5 @@ if [[ $CONTAINER_STRUCTURE_CHECK -eq 0 ]];
 container_log "##########################################################################################" "INFO"
 #
 cd ${SCRIPT_PATH} &&  java -Xms${JAVA_XMS}m -Xmx${JAVA_XMX}m -jar l2jserver.jar
-#
-container_log "##########################################################################################" "INFO"
 #
 exit 0
