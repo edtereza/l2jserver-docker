@@ -44,13 +44,16 @@ container_log() {
 container_params_php() {
     PARAM_SET_FILE=$1
     PARAM_SET_NAME=$2
+    PARAM_SET_LINE=$(grep -n -w "$PARAM_SET_NAME =" $PARAM_SET_FILE | awk '{print $1}' FS=:)
     PARAM_SET_VALUE=$3
-    if [[ "$PARAM_SET_VALUE" != "" ]];
+    if [[ ! $PARAM_SET_LINE =~ ^[0-9]{1,10}$ ]];
         then
-            sed -i "s/;${PARAM_SET_NAME} =.*/${PARAM_SET_NAME} = ${PARAM_SET_VALUE}/" $PARAM_SET_FILE
-            sed -i "s/${PARAM_SET_NAME} =.*/${PARAM_SET_NAME} = ${PARAM_SET_VALUE}/" $PARAM_SET_FILE
-        else
-            sed -i "s/${PARAM_SET_NAME} =.*/;${PARAM_SET_NAME} = ${PARAM_SET_VALUE}/" $PARAM_SET_FILE
+            if [[ "$PARAM_SET_VALUE" != "" ]];
+                then
+                    sed -i '$PARAM_SET_LINEs/.*/$PARAM_SET_NAME = $PARAM_SET_VALUE/' $PARAM_SET_FILE
+                else
+                    sed -i '$PARAM_SET_LINEs/.*/;$PARAM_SET_NAME = $PARAM_SET_VALUE/' $PARAM_SET_FILE
+                fi
         fi
 }
 # ---------------------------------------------------------------------------
