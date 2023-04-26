@@ -75,7 +75,7 @@ echo ''
 build_log "Building MariaDB Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-mariadb;
-docker build --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
+docker build --no-cache --tag edtereza/l2jserver-mariadb:${DOCKER_IMAGE_VERSION_MARIADB} --load .
 build_log "############################################################" "INFO"
 echo ''
 # ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ echo ''
 build_log "Building Login Server Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-login;
-docker build --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
+docker build --no-cache --tag edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN} --load .
 build_log "############################################################" "INFO"
 echo ''
 # ---------------------------------------------------------------------------
@@ -93,7 +93,7 @@ echo ''
 build_log "Building Game Server Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-game;
-docker build --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
+docker build --no-cache --tag edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME} --load .
 build_log "############################################################" "INFO"
 echo ''
 # ---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ echo ''
 build_log "Building Web Server Container" "INFO"
 build_log "############################################################" "INFO"
 cd ${INSTALL_PATH}/l2jserver-web;
-docker build --tag edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB} --load .
+docker build --no-cache --tag edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB} --load .
 build_log "############################################################" "INFO"
 echo ''
 # ---------------------------------------------------------------------------
