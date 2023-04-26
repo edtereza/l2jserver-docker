@@ -1,0 +1,63 @@
+.marker,
+.zoomHolder img {
+    display: block;
+}
+.fullscreenToggle {
+    background-position: -60px 0;
+    cursor: pointer;
+    display: none !important;
+}
+.zoomIn.on,
+.zoomOut.on {
+    opacity: 1;
+    -moz-opacity: 1;
+    -khtml-opacity: 1;
+    cursor: pointer;
+}
+.zoomIn.off,
+.zoomOut.off {
+    opacity: 0.5;
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    cursor: auto;
+}
+.fullscreenDiv,
+.marker {
+    left: 0;
+    top: 0;
+}
+.fullscreenToggle.on {
+    background-position: -90px 0;
+}
+.fullscreenToggle.off {
+    background-position: -60px 0;
+}
+.fullscreenDiv {
+    width: auto !important;
+    height: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    position: absolute !important;
+    background: #fff;
+    z-index: 999999;
+    overflow: hidden;
+    touch-action: none;
+}
+.zoomHolder {
+    width: 100%;
+    height: auto;
+    position: relative;
+    overflow: hidden;
+}
+.marker {
+    position: absolute !important;
+    bottom: auto !important;
+    right: auto !important;
+    cursor: pointer;
+}
+.zoomHolder {
+    -webkit-tap-highlight-color: transparent;
+}
+.fullscreenDiv * {
+    touch-action: none;
+}

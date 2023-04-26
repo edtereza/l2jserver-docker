@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="395.777" height="12.191" viewBox="0 0 395.777 12.191">
+<defs>
+</defs>
+<g transform="matrix(1 0 0 -1 197.89 6.1)"  >
+<g style=""   >
+		<g transform="matrix(1 0 0 1 -102.13 2.56)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(228,197,113); fill-rule: nonzero; opacity: 1;"  transform=" translate(-93.96, -0.51)" d="M 0 0 H 187.913 V 1.014 H 0 Z" stroke-linecap="round" />
+</g>
+		<g transform="matrix(1 0 0 1 101.4 2.56)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(228,197,113); fill-rule: nonzero; opacity: 1;"  transform=" translate(-93.96, -0.51)" d="M 0 0 H 187.913 V 1.014 H 0 Z" stroke-linecap="round" />
+</g>
+		<g transform="matrix(1 0 0 1 0 -1.46)"  >
+<path style="stroke: rgb(228,197,113); stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"  transform=" translate(-955.82, -1312.38)" d="M 945 1316.395 l 10.6 -8.032 l 11.038 8.032" stroke-linecap="round" />
+</g>
+		<g transform="matrix(1 0 0 1 -0.32 1.56)"  >
+<path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(228,197,113); fill-rule: nonzero; opacity: 1;"  transform=" translate(-4, -1.5)" d="M 4 0 L 8 3 H 0 Z" stroke-linecap="round" />
+</g>
+		<g transform="matrix(0.71 -0.71 0.71 0.71 -194.35 2.56)"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(228,197,113); fill-rule: nonzero; opacity: 1;"  x="-2.5" y="-2.5" rx="0" ry="0" width="5" height="5" />
+</g>
+		<g transform="matrix(0.71 -0.71 0.71 0.71 194.35 2.56)"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(228,197,113); fill-rule: nonzero; opacity: 1;"  x="-2.5" y="-2.5" rx="0" ry="0" width="5" height="5" />
+</g>
+</g>
+</g>
+</svg>
