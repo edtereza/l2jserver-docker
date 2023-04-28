@@ -270,8 +270,8 @@ EOF
 user = www
 group = www
 listen = /run/php-fpm.sock
-listen.owner = root
-listen.group = root
+listen.owner = www
+listen.group = www
 listen.mode = 0660
 pm = dynamic
 pm.max_children = 32
