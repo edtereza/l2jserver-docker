@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.11
 MAINTAINER Erik Douglas Tereza <erik.d.tereza@gmail.com>
 LABEL maintainer="Erik Douglas Tereza <erik.d.tereza@gmail.com>" \
       architecture="amd64/x86_64" \
@@ -23,8 +23,9 @@ ENV HTTP_SOURCE_DOCKER="https://github.com/edtereza/l2jserver-docker.git"
 #
 # Dependences
 #
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community php && \
-    apk update && apk --no-cache add tzdata git unzip zip nginx php8-fpm php8-pecl-mcrypt php8-soap php8-openssl php8-gmp php8-pdo_odbc php8-json php8-dom php8-pdo php8-zip php8-mysqli php8-sqlite3 php8-apcu php8-pdo_pgsql php8-bcmath php8-gd php8-odbc php8-pdo_mysql php8-pdo_sqlite php8-gettext php8-xmlreader php8-bz2 php8-iconv php8-pdo_dblib php8-curl php8-ctype && \
+RUN wget https://php.hernandev.com/key/php-alpine.rsa.pub -o /etc/apk/keys/php-alpine.rsa.pub && \
+    apk update && apk upgrade && \ 
+    apk add ca-certificates tzdata git unzip zip nginx php php7-fpm php7-pecl-mcrypt php7-soap php7-openssl php7-gmp php7-pdo_odbc php7-json php7-dom php7-pdo php7-zip php7-mysqli php7-sqlite3 php7-apcu php7-pdo_pgsql php7-bcmath php7-gd php7-odbc php7-pdo_mysql php7-pdo_sqlite php7-gettext php7-xmlreader php7-bz2 php7-iconv php7-pdo_dblib php7-curl php7-ctype && \
     adduser -D -g 'www' www  && \
     mkdir -p "$PATH_SOURCE"
 #

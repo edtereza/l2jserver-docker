@@ -334,6 +334,6 @@ container_log "#################################################################
 #
 chown www:www $PATH_SHARED_WWW -R
 /usr/sbin/nginx -c /etc/nginx/nginx.conf
-/usr/sbin/php-fpm7 --nodaemonize --allow-to-run-as-root --force-stderr --fpm-config /etc/php7/php-fpm.conf
+/usr/sbin/php-fpm7 --nodaemonize --force-stderr --fpm-config /etc/php7/php-fpm.conf
 #
 exit 0
