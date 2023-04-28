@@ -494,7 +494,6 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 container_log "##########################################################################################" "INFO"
 #
 chown apache:apache $PATH_SHARED_WWW -R
-/usr/sbin/nginx -c /etc/nginx/nginx.conf
-/usr/sbin/php-fpm7 --nodaemonize --force-stderr --fpm-config /etc/php7/php-fpm.conf
+httpd -e info -D FOREGROUND
 #
 exit 0
