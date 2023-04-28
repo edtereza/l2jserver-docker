@@ -12,6 +12,7 @@ PATH_CLIENT_CONFIG="${SCRIPT_PATH}/cli/config"
 # Config Files
 # ---------------------------------------------------------------------------
 FILE_SERVER_CONFIG_SERVER="${PATH_SERVER_CONFIG}/server.properties"
+FILE_SERVER_CONFIG_TELNET="${PATH_SERVER_CONFIG}/telnet.properties"
 FILE_SERVER_CONFIG_DATABASE="${PATH_SERVER_CONFIG}/database.properties"
 FILE_CLIENT_CONFIG_DATABASE="${PATH_CLIENT_CONFIG}/game-server.properties"
 # ---------------------------------------------------------------------------
@@ -239,6 +240,10 @@ container_params() {
     LOGIN_HOST=${LOGIN_HOST:-"127.0.0.1"}                                                                           #LoginHost = *
     LOGIN_PORT=${LOGIN_PORT:-"9014"}                                                                                #LoginPort = 9014
     #
+    TELNET_PORT=${TELNET_PORT:-"24865"} 
+    TELNET_HOST=${TELNET_HOST:-"0.0.0.0"} 
+    TELNET_PASSWORD=${TELNET_PASSWORD:-"$MARIADB_PASSWORD"} 
+    #
     SERVER_DATAPACK_ROOT="."                                                                                        #DatapackRoot = .
     SERVER_RESERVE_HOST_ON_LOGIN="False"                                                                            #ReserveHostOnLogin = False
     SERVER_SCRIPT_ROOT="./script"                                                                                   #ScriptRoot = ./script
@@ -257,6 +262,10 @@ container_params() {
     container_log " - - Login" "INFO"
 	container_log " - - - LoginHost......: ${LOGIN_HOST}" "INFO"
 	container_log " - - - LoginPort......: ${LOGIN_PORT}" "INFO"
+    container_log " - - Telnet" "INFO"
+	container_log " - - - Hosts....: ${TELNET_HOST}" "INFO"
+	container_log " - - - Port.....: ${TELNET_PORT}" "INFO"
+	container_log " - - - Password.: ${TELNET_PASSWORD}" "INFO"
     container_log " - - General" "INFO"
 	container_log " - - - ScriptRoot...............: ${SERVER_SCRIPT_ROOT}" "INFO"    
 	container_log " - - - DatapackRoot.............: ${SERVER_DATAPACK_ROOT}" "INFO"    
@@ -271,6 +280,9 @@ container_params() {
     export SERVER_ACCEPT_ALTID=$SERVER_ACCEPT_ALTID
     export LOGIN_HOST=$LOGIN_HOST
     export LOGIN_PORT=$LOGIN_PORT
+    export TELNET_HOST=$TELNET_HOST
+    export TELNET_PORT=$TELNET_PORT
+    export TELNET_PASSWORD=$TELNET_PASSWORD
     export SERVER_DATAPACK_ROOT=$SERVER_DATAPACK_ROOT
     export SERVER_RESERVE_HOST_ON_LOGIN=$SERVER_RESERVE_HOST_ON_LOGIN
     export SERVER_SCRIPT_ROOT=$SERVER_SCRIPT_ROOT
@@ -303,6 +315,14 @@ MaxOnlineUsers = ${SERVER_PLAYER_MAX}
 AllowedProtocolRevisions = ${SERVER_ALLOWED_PROTOCOL}
 IdFactory = ${SERVER_ID_FACTORY}
 BadIdChecking = ${SERVER_BAD_ID_CHECKING}
+EOF
+
+   container_log "- config/telnet.properties" "INFO"
+	cat > $FILE_SERVER_CONFIG_SERVER << EOF
+EnableTelnet = True
+Port = ${TELNET_PORT}
+Password = ${TELNET_PASSWORD}
+Hosts = ${TELNET_HOST}
 EOF
     container_log "- config/database.properties" "INFO"
 	cat > $FILE_SERVER_CONFIG_DATABASE << EOF
