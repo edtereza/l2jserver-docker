@@ -318,7 +318,7 @@ BadIdChecking = ${SERVER_BAD_ID_CHECKING}
 EOF
 
    container_log "- config/telnet.properties" "INFO"
-	cat > $FILE_SERVER_CONFIG_SERVER << EOF
+	cat > $FILE_SERVER_CONFIG_TELNET << EOF
 EnableTelnet = True
 Port = ${TELNET_PORT}
 Password = ${TELNET_PASSWORD}
