@@ -72,7 +72,30 @@ services:
       - "3306:3306"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./l2jserver/mariadb:/var/lib/mysql
+      - /opt/l2jserver/mariadb:/var/lib/mysql
+  l2jserver-web:
+    container_name: l2jserver-web
+    image: edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB}
+    restart: always
+    depends_on:
+      - l2jserver-mariadb
+    environment:
+      MARIADB_HOST: l2jserver-mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: "l2jlogin"
+      MARIADB_USERNAME: "l2jserver"
+      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
+    healthcheck:
+      test: healthcheck
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+    ports:
+      - "80:80"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/l2jserver/www/:/var/www
   l2jserver-login:
     container_name: l2jserver-login
     image: edtereza/l2jserver-login:${DOCKER_IMAGE_VERSION_LOGIN}
@@ -119,29 +142,6 @@ services:
       - "2106:2106"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-  l2jserver-web:
-    container_name: l2jserver-web
-    image: edtereza/l2jserver-web:${DOCKER_IMAGE_VERSION_WEB}
-    restart: always
-    depends_on:
-      - l2jserver-mariadb
-    environment:
-      MARIADB_HOST: l2jserver-mariadb
-      MARIADB_PORT: "3306"
-      MARIADB_DATABASE: "l2jlogin"
-      MARIADB_USERNAME: "l2jserver"
-      MARIADB_PASSWORD: ${INSTALL_PASSWORD}
-    healthcheck:
-      test: healthcheck
-      interval: 5s
-      timeout: 2s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "80:80"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./l2jserver/web/:/etc/nginx/www/
   l2jserver-game:
     container_name: l2jserver-game
     image: edtereza/l2jserver-game:${DOCKER_IMAGE_VERSION_GAME}
@@ -175,9 +175,9 @@ services:
       - "7777:7777"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./l2jserver/game/data:/opt/l2jserver/data
-      - ./l2jserver/game/config:/opt/l2jserver/config
-      - ./l2jserver/game/script:/opt/l2jserver/script
+      - /opt/l2jserver/game/data:/opt/l2jserver/data
+      - /opt/l2jserver/game/config:/opt/l2jserver/config
+      - /opt/l2jserver/game/script:/opt/l2jserver/script
 EOF
 cat ${INSTALL_PATH}/docker-compose.yml
 build_log "############################################################" "INFO"
