@@ -135,7 +135,7 @@ container_params() {
     PHP_FILE_UPLOADS=${PHP_FILE_UPLOADS:-"On"}
     PHP_UPLOAD_MAX_FILESIZE=${PHP_UPLOAD_MAX_FILESIZE:-"512M"}
     PHP_MAX_FILE_UPLOADS=${PHP_MAX_FILE_UPLOADS:-"20"}
-    PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_COMPILE_ERROR\|E_RECOVERABLE_ERROR\|E_ERROR\|E_CORE_ERROR"}
+    PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_ALL"}
     PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-"On"}
     PHP_DISPLAY_STARTUP_ERRORS=${PHP_DISPLAY_STARTUP_ERRORS:-"On"}
     PHP_LOG_ERRORS=${PHP_LOG_ERRORS:-"On"}
@@ -267,7 +267,7 @@ session.referer_check =
 session.cache_limiter = nocache
 session.cache_expire = 720
 session.use_trans_sid = 0
-session.sid_length = 256
+session.sid_length = 64
 session.trans_sid_tags = "a=href,area=href,frame=src,form="
 session.sid_bits_per_character = 5
 EOF
@@ -510,6 +510,6 @@ if [[ $CONTAINER_DATABASE_CHECK -eq 0 ]];
 container_log "##########################################################################################" "INFO"
 #
 chown apache:apache $PATH_SHARED_WWW -R
-httpd -e info -D FOREGROUND
+httpd -e debug -D FOREGROUND
 #
 exit 0
